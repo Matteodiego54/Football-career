@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Career Manager — Gioco</title>
+<style>
+body{margin:0;background:#090b0f;color:#fff;font-family:Arial,sans-serif}*{box-sizing:border-box}
+#app{max-width:1100px;margin:auto;padding:16px}.screen{background:#12161d;border:1px solid #2b3340;border-radius:16px;padding:18px;margin-bottom:14px}
+button{background:#252d38;color:#fff;border:0;border-radius:9px;padding:10px 14px;margin:4px;font-weight:bold;cursor:pointer}button:hover{background:#3a4655}.primary{background:#e32632}.green{background:#157044}.gold{background:#80631c}
+nav{display:flex;gap:4px;overflow:auto;margin:12px 0}nav button{white-space:nowrap}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.card{background:#1a2029;border:1px solid #303947;border-radius:12px;padding:13px}.big{font-size:24px;font-weight:900}.muted{color:#96a0ad;font-size:13px}.row{display:flex;justify-content:space-between;gap:10px;padding:11px;border-bottom:1px solid #282f39}.row:last-child{border:0}.pill{background:#2a313c;padding:4px 7px;border-radius:6px;font-size:12px}.greenText{color:#40d889}.goldText{color:#f1c75a}.redText{color:#ff6871}.modal{position:fixed;inset:0;background:#000b;display:none;align-items:end}.modal>div{background:#11161d;width:100%;max-width:650px;margin:auto;padding:18px;border-radius:18px 18px 0 0;max-height:90vh;overflow:auto}.line{height:7px;background:#303641;border-radius:5px}.line i{display:block;height:100%;background:#e32632;border-radius:5px}@media(max-width:700px){.grid{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr 1fr}}
+</style>
+
+<style>
+:root{--bg:#070a0f;--panel:#111722;--panel2:#171f2b;--line:#293241;--red:#e32632;--green:#19b86b;--gold:#f0c75e}
+body{background:radial-gradient(circle at 15% 0%,#172130 0,#070a0f 42%);min-height:100vh}
+.screen{box-shadow:0 10px 35px #0006}
+.card{transition:.2s transform,.2s border-color,.2s box-shadow}
+.card:hover{transform:translateY(-2px);border-color:#536177;box-shadow:0 8px 24px #0005}
+.badge{width:42px;height:42px;object-fit:contain;background:#fff;border-radius:10px;padding:4px;vertical-align:middle}
+.player-photo{width:58px;height:58px;object-fit:cover;border-radius:50%;background:#252d38;border:2px solid #3a4655}
+.player-avatar{width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#263141,#10151d);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;border:2px solid #3a4655}
+.player-row{display:flex;align-items:center;gap:12px}
+.team-title{display:flex;align-items:center;gap:12px}
+.searchbar{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px}
+.searchbar input,.searchbar select{width:100%;padding:11px;border-radius:9px;border:1px solid #354052;background:#0d1219;color:#fff}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:#121a24;border:1px solid #3b4655;color:#fff;padding:12px 16px;border-radius:12px;box-shadow:0 12px 30px #0009;opacity:0;pointer-events:none;transition:.25s;z-index:9999;max-width:min(92vw,520px);text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(max-width:700px){.searchbar{grid-template-columns:1fr 1fr}.team-title h1{font-size:24px}}
+</style>
+
+<style>
+:root{--bg:#070a0f;--panel:#111722;--panel2:#171f2b;--line:#293241;--red:#e32632;--green:#19b86b;--gold:#f0c75e;--blue:#3b82f6}
+body{background:radial-gradient(circle at 15% 0%,#182437 0,#070a0f 45%);min-height:100vh}
+.screen{box-shadow:0 12px 40px #0007}.card{transition:.18s transform,.18s border-color,.18s box-shadow}.card:hover{transform:translateY(-2px);border-color:#536177;box-shadow:0 8px 26px #0006}
+.badge{width:48px;height:48px;object-fit:contain;background:#fff;border-radius:12px;padding:4px}.player-photo{width:64px;height:64px;object-fit:cover;border-radius:50%;background:#252d38;border:2px solid #4a5668}.player-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#263141,#10151d);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;border:2px solid #4a5668}.player-row{display:flex;align-items:center;gap:12px;min-width:0}.player-row>span{min-width:0}
+.flag{font-size:18px}.pill{display:inline-block;padding:4px 8px;border-radius:999px;background:#252d38;font-size:12px;font-weight:800}.competition{border-left:4px solid var(--blue)}.cup{border-left:4px solid var(--gold)}
+.result-hero{animation:scoreIn .5s ease-out}.goal{animation:goalPulse .7s ease-out}@keyframes scoreIn{from{opacity:0;transform:scale(.92) translateY(15px)}to{opacity:1;transform:none}}@keyframes goalPulse{0%{transform:scale(.8);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+.matchbox{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;text-align:center;padding:20px;border-radius:16px;background:linear-gradient(135deg,#151c27,#0d121a);border:1px solid #303947}
+.searchbar{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px}.searchbar input,.searchbar select{width:100%;padding:11px;border-radius:9px;border:1px solid #354052;background:#0d1219;color:#fff}
+.modal{z-index:9999}.modal>div{animation:scoreIn .35s ease-out}@media(max-width:700px){.searchbar{grid-template-columns:1fr 1fr}.matchbox{grid-template-columns:1fr}}
+</style>
+</head>
+<body><div id="app"></div><div class="modal" id="modal"><div id="modalBody"></div></div>
+
+<script>
+const API="https://www.thesportsdb.com/api/v1/json/123";
+
+
+const youthNames=[["Luca","Rossi","ITA"],["Matteo","Esposito","ITA"],["Alessandro","Romano","ITA"],["Federico","Conti","ITA"],["Gabriele","Ferrari","ITA"],["Tommaso","Moretti","ITA"],["Davide","Ricci","ITA"],["Nicolo","Marino","ITA"],["Samuele","Costa","ITA"],["Emanuele","De Luca","ITA"],["Ethan","Williams","ENG"],["Oliver","Smith","ENG"],["Jack","Taylor","ENG"],["Noah","Brown","ENG"],["Leo","Martin","FRA"],["Hugo","Bernard","FRA"],["Pablo","Garcia","ESP"],["Alejandro","Martin","ESP"],["Lukas","Muller","GER"],["Jonas","Schmidt","GER"],["Milan","De Jong","NED"],["Tiago","Silva","POR"],["Joao","Costa","POR"]];
+const countryFlags={ITA:"🇮🇹",ENG:"🏴",FRA:"🇫🇷",ESP:"🇪🇸",GER:"🇩🇪",NED:"🇳🇱",POR:"🇵🇹",BRA:"🇧🇷",ARG:"🇦🇷",BEL:"🇧🇪",CRO:"🇭🇷",SRB:"🇷🇸",URU:"🇺🇾",COL:"🇨🇴",USA:"🇺🇸",MAR:"🇲🇦",SUI:"🇨🇭",AUT:"🇦🇹",POL:"🇵🇱",SWE:"🇸🇪",NOR:"🇳🇴",DEN:"🇩🇰"};
+function flagFor(n){return countryFlags[String(n||"").toUpperCase()]||"🌍"} function natLabel(p){return `${flagFor(p.nationality)} ${esc(p.nationality||"N/D")}`}
+
+const pyramid={
+"Italia":{
+"Serie A":["Milan","Inter","Juventus","Napoli","Roma","Lazio","Atalanta","Fiorentina","Bologna","Torino","Genoa","Sassuolo","Udinese","Parma","Cagliari","Lecce","Como","Cremonese","Pisa","Venezia"],
+"Serie B":["Sampdoria","Palermo","Bari","Spezia","Catanzaro","Modena","Brescia","Pisa","Cesena","Reggiana","Südtirol","Mantova","Frosinone","Salernitana","Empoli","Sassuolo","Carrarese","Juve Stabia","Cittadella","Avellino"],
+"Serie C":["Vicenza","Padova","Crotone","Catania","Pescara","Ternana","Perugia","Feralpisalò","Triestina","Virtus Entella","Monopoli","Benevento","Avellino","Audace Cerignola","Trapani","Cavese","Sorrento","Giugliano","Taranto","Potenza"],
+"Serie D":["Livorno","Siena","Ravenna","Sambenedettese","Reggina","Siracusa","Casertana","Nocerina","Ancona","Chieti","Varese","Piacenza","Forlì","Pistoiese","Grosseto","Prato","Città di Varese","Bra","Desenzano","Treviso"]
+},
+"Inghilterra":{
+"Premier League":["Arsenal","Manchester City","Liverpool","Manchester United","Chelsea","Tottenham","Newcastle","Aston Villa","West Ham","Everton","Brighton","Crystal Palace","Wolves","Fulham","Brentford","Nottingham Forest","Bournemouth","Leeds","Burnley","Sunderland"],
+"Championship":["Leicester City","Southampton","Ipswich Town","Norwich City","Middlesbrough","West Bromwich Albion","Coventry City","Watford","Swansea City","Stoke City","Blackburn Rovers","Hull City","Preston North End","Bristol City","Cardiff City","Millwall","Queens Park Rangers","Sheffield United","Derby County","Portsmouth"],
+"League One":["Wigan Athletic","Bolton Wanderers","Reading","Charlton Athletic","Huddersfield Town","Blackpool","Rotherham United","Wycombe Wanderers","Barnsley","Lincoln City","Stockport County","Peterborough United","Birmingham City","Leyton Orient","Exeter City","Stevenage","Mansfield Town","Burton Albion","Cambridge United","Shrewsbury Town"],
+"League Two":["Notts County","Bradford City","Chesterfield","Doncaster Rovers","Gillingham","MK Dons","Walsall","Colchester United","Crewe Alexandra","Swindon Town","Salford City","Fleetwood Town","Grimsby Town","AFC Wimbledon","Barrow","Tranmere Rovers","Accrington Stanley","Harrogate Town","Morecambe","Newport County"],
+"National League":["Oldham Athletic","Southend United","York City","Rochdale","Hartlepool United","Gateshead","Forest Green Rovers","Halifax Town","Solihull Moors","Barnet","Altrincham","Woking","Eastleigh","Dagenham & Redbridge","Sutton United","Aldershot Town","Wealdstone","Yeovil Town","Tamworth","Boston United"]
+},
+"Spagna":{
+"LaLiga":["Real Madrid","Barcelona","Atletico Madrid","Athletic Club","Real Sociedad","Villarreal","Real Betis","Sevilla","Valencia","Girona","Celta Vigo","Getafe","Osasuna","Mallorca","Rayo Vallecano","Alaves","Espanyol","Levante"],
+"Segunda División":["Almeria","Real Zaragoza","Racing Santander","Sporting Gijon","Eibar","Tenerife","Cadiz","Granada","Malaga","Oviedo","Huesca","Elche","Mirandes","Burgos","Leganes","Deportivo La Coruna","Castellon","Eldense","Cordoba","Albacete"],
+"Primera Federación":["Real Madrid Castilla","Barcelona Atlètic","Deportivo La Coruna B","Atletico Madrid B","Betis Deportivo","Sevilla Atletico","Malaga","Recreativo Huelva","Murcia","Gimnastic Tarragona","Ponferradina","Cultural Leonesa","Unionistas","Andorra","Osasuna B","Real Sociedad B"]
+},
+"Germania":{
+"Bundesliga":["Bayern Munich","Borussia Dortmund","Bayer Leverkusen","RB Leipzig","Eintracht Frankfurt","Stuttgart","Freiburg","Mainz","Werder Bremen","Wolfsburg","Hoffenheim","Union Berlin","Augsburg","Hamburg","St Pauli"],
+"2. Bundesliga":["Schalke 04","Hertha Berlin","FC Koln","Hamburg","Hannover 96","Fortuna Dusseldorf","Nurnberg","Karlsruhe","Paderborn","Holstein Kiel","Darmstadt","Greuther Furth","Kaiserslautern","Magdeburg","Elversberg","Preussen Munster"],
+"3. Liga":["Dynamo Dresden","1860 Munich","Hansa Rostock","Saarbrucken","Ingolstadt","Arminia Bielefeld","Rot-Weiss Essen","Alemannia Aachen","VfL Osnabruck","Erzgebirge Aue","Unterhaching","Wehen Wiesbaden","Sandhausen","Energie Cottbus","Stuttgart II","Dortmund II"]
+},
+"Francia":{
+"Ligue 1":["Paris Saint-Germain","Marseille","Lyon","Monaco","Lille","Nice","Lens","Rennes","Strasbourg","Nantes","Toulouse","Brest","Reims","Auxerre","Saint-Etienne","Le Havre"],
+"Ligue 2":["Metz","Lorient","Paris FC","Caen","Bordeaux","Guingamp","Grenoble","Amiens","Laval","Pau","Bastia","Clermont","Annecy","Rodez","Ajaccio","Dunkerque"],
+"National":["Nancy","Le Mans","Valenciennes","Sochaux","Dijon","Rouen","Orleans","Boulogne","Versailles","Concarneau","Aubagne","Quevilly Rouen"]
+},
+"Olanda":{
+"Eredivisie":["Ajax","PSV","Feyenoord","AZ","Twente","Utrecht","Groningen","Heerenveen","Sparta Rotterdam","NEC","Fortuna Sittard","PEC Zwolle"],
+"Eerste Divisie":["Roda JC","ADO Den Haag","De Graafschap","FC Emmen","Cambuur","Willem II","MVV Maastricht","Helmond Sport","FC Eindhoven","TOP Oss","Telstar","VVV-Venlo","Jong Ajax","Jong PSV","Jong AZ","Jong Utrecht"]
+},
+"Portogallo":{
+"Primeira Liga":["Benfica","Porto","Sporting CP","Braga","Vitoria Guimaraes","Boavista","Famalicao","Rio Ave","Gil Vicente","Estoril","Casa Pia","Arouca"],
+"Segunda Liga":["Maritimo","Academico Viseu","Leixoes","Tondela","Feirense","Penafiel","Vizela","Portimonense","Chaves","Benfica B","Porto B","Sporting CP B"]
+}
+};
+const leagues=Object.fromEntries(Object.entries(pyramid).flatMap(([country,tiers])=>Object.entries(tiers).map(([tier,teams])=>[country+" — "+tier,teams])));
+
+const power={Milan:84,Inter:85,Juventus:82,Napoli:83,Roma:81,Lazio:81,Atalanta:82,Fiorentina:79,Bologna:78,Torino:77,Genoa:75,Sassuolo:74,Udinese:74,Parma:73,Cagliari:72,Lecce:71,Como:73,Cremonese:69,Pisa:68,Venezia:70,Arsenal:87,"Manchester City":92,Liverpool:89,"Manchester United":82,Chelsea:84,Tottenham:82,Newcastle:83,"Aston Villa":83,"West Ham":77,Everton:75,Brighton:78,"Crystal Palace":75,Wolves:74,Fulham:75,Brentford:76,"Nottingham Forest":76,Bournemouth:75,Leeds:73,Burnley:70,Sunderland:70,"Real Madrid":92,Barcelona:89,"Atletico Madrid":87,"Athletic Club":81,"Real Sociedad":80,Villarreal:80,"Real Betis":79,Sevilla:77,Valencia:76,Girona:79,"Celta Vigo":75,Getafe:73,Osasuna:74,Mallorca:74,"Rayo Vallecano":73,Alaves:71,Espanyol:72,Levante:70,"Bayern Munich":91,"Borussia Dortmund":85,"Bayer Leverkusen":86,"RB Leipzig":83,"Eintracht Frankfurt":80,Stuttgart:79,Freiburg:76,Mainz:75,"Werder Bremen":74,Wolfsburg:74,Hoffenheim:73,"Union Berlin":72,Augsburg:71,Hamburg:70,"St Pauli":68,"Paris Saint-Germain":91,Marseille:80,Lyon:78,Monaco:82,Lille:80,Nice:78,Lens:77,Rennes:76,Strasbourg:74,Nantes:72,Toulouse:73,Brest:73,Reims:71,Auxerre:69,"Saint-Etienne":70,"Le Havre":68,Ajax:82,PSV:83,Feyenoord:81,AZ:77,Twente:75,Utrecht:73,Groningen:70,Heerenveen:70,"Sparta Rotterdam":69,NEC:68,"Fortuna Sittard":66,"PEC Zwolle":66,Benfica:84,Porto:84,"Sporting CP":84,Braga:78,"Vitoria Guimaraes":74,Boavista:69,Famalicao:70,"Rio Ave":69,"Gil Vicente":68,Estoril:68,"Casa Pia":67,Arouca:68};
+
+let S={started:false,league:"",club:"",season:2026,match:0,month:8,tab:"home",budget:0,rep:60,players:[],youth:[],table:{},results:[],offers:[],history:[],news:[],formation:"4-3-3",badge:"",teamId:null,loadingSquad:false,marketSearch:"",marketMax:"",marketTeam:"",marketRole:""};
+const teamCache={};
+function money(n){return "€"+(n/1e6).toFixed(1)+"M"}
+function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function initials(n){return (String(n||"?").split(/\s+/).slice(0,2).map(x=>x[0]).join("")||"?").toUpperCase()}
+function toast(msg){let t=document.getElementById("toast");if(!t)return;t.textContent=msg;t.classList.add("show");clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.classList.remove("show"),3200)}
+function normalizePos(p){p=String(p||"").toLowerCase();if(/goal|keeper|port/.test(p))return"POR";if(/back|defender|centre-back|center-back/.test(p))return"DC";if(/wing|wide/.test(p))return"AD";if(/mid|centre|center/.test(p))return"CC";if(/forward|striker|attack/.test(p))return"ATT";return"CC"}
+function apiValue(o){return Math.max(500000,Math.round(o*o*9000))}
+function fallbackPlayers(c){
+ let p=power[c]||76,names=["Marco Bianchi","Lorenzo Ferrari","Andrea Ricci","Davide Conti","Matteo Romano","Federico Moretti","Gabriele Rinaldi","Simone Costa","Luca Esposito","Tommaso Marino","Alessandro De Luca","Nicolo Russo","Edoardo Galli","Filippo Lombardi","Stefano Greco","Pietro Fontana","Riccardo Serra","Michele Caruso","Daniele Villa","Cristian Ferri","Fabio Marchetti","Antonio Riva","Enrico Pellegrini"],pos=["POR","DC","DC","DC","DC","CC","CC","CC","AD","AS","ATT","ATT","POR","DC","DC","CC","CC","AD","AS","ATT","ATT","CC","DC"];
+ return names.map((name,i)=>enrichPlayer({id:i,name,pos:pos[i],ovr:Math.max(60,p-7+(i%9)),age:18+(i%14),pot:Math.min(96,p+8+(i%8)),apps:0,g:0,a:0,form:7,value:apiValue(Math.max(60,p-7+(i%9))),photo:"",nationality:"ITA",seasonStats:{apps:0,starts:0,minutes:0,goals:0,assists:0,cleanSheets:0,yellow:0,red:0,rating:7.0},transferHistory:[]}));
+}
+async function apiJson(u){let r=await fetch(u,{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);return r.json()}
+async function getTeam(club){let k=club.toLowerCase();if(teamCache[k])return teamCache[k];let d=await apiJson(`${API}/searchteams.php?t=${encodeURIComponent(club)}`);let t=(d.teams||[]).find(x=>String(x.strSport||"").toLowerCase()==="soccer")||(d.teams||[])[0];if(!t)throw Error("Squadra non trovata");return teamCache[k]=t}
+async function loadRealSquad(club){
+ S.loadingSquad=true;render();
+ try{
+  let t=await getTeam(club);S.teamId=t.idTeam;S.badge=t.strBadge||"";
+  let d=await apiJson(`${API}/lookup_all_players.php?id=${encodeURIComponent(t.idTeam)}`),arr=(d.player||[]);
+  if(!arr.length)throw Error("Rosa non disponibile");
+  S.players=arr.map((p,i)=>{let age=p.dateBorn?Math.max(16,new Date().getFullYear()-new Date(p.dateBorn).getFullYear()):25;let o=Math.max(60,Math.min(94,Math.round((power[club]||76)+(Math.random()*8-4))));return enrichPlayer({id:i,apiId:p.idPlayer,name:p.strPlayer||"Giocatore",pos:normalizePos(p.strPosition),ovr:o,age,pot:Math.min(99,o+Math.floor(Math.random()*9)+1),apps:0,g:0,a:0,form:7,value:apiValue(o),photo:p.strCutout||p.strThumb||"",team:club,nationality:p.strNationality||"N/D",seasonStats:{apps:0,starts:0,minutes:0,goals:0,assists:0,cleanSheets:0,yellow:0,red:0,rating:7.0},transferHistory:[]});});
+  localStorage.setItem("realRoster_"+club,JSON.stringify({badge:S.badge,teamId:S.teamId,players:S.players,updated:Date.now()}));
+  S.news.unshift(`Rosa reale caricata: ${S.players.length} giocatori.`);toast(`Rosa reale caricata: ${S.players.length} giocatori`);
+ }catch(e){
+  let c=localStorage.getItem("realRoster_"+club);
+  if(c){try{c=JSON.parse(c);S.players=c.players||fallbackPlayers(club);S.badge=c.badge||S.badge;S.teamId=c.teamId||S.teamId;toast("Usata la rosa reale salvata.");}catch(_){S.players=fallbackPlayers(club);toast("Rosa online non disponibile.")}}
+  else{S.players=fallbackPlayers(club);toast("Rosa online non disponibile: carriera non bloccata.")}
+ }finally{S.loadingSquad=false;render()}
+}
+function initTable(){S.table={};for(let c of leagues[S.league])S.table[c]={p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0}}
+function youth(){
+ const roles=["POR","DC","DC","DC","TD","TS","CC","CC","CC","AD","AS","ATT","ATT","POR","DC","DC","TD","CC","CC","AD","AS","ATT","ATT"];
+ return youthNames.map((n,i)=>enrichPlayer({id:i,name:`${n[0]} ${n[1]}`,age:16+(i%3),pos:roles[i],ovr:54+(i%14),pot:76+(i%19),team:i%3===0?"U17":i%3===1?"U18":"Primavera",status:"vivaio",nationality:n[2],photo:"",value:apiValue(54+(i%14)),apps:0,g:0,a:0,form:7,seasonStats:{apps:0,starts:0,minutes:0,goals:0,assists:0,cleanSheets:0,yellow:0,red:0,rating:7.0},transferHistory:[]}));
+}
+function start(l,c){S={...S,started:true,league:l,club:c,season:2026,match:0,month:8,budget:(power[c]||76)*1800000,rep:power[c]||76,players:fallbackPlayers(c),youth:youth(),table:{},results:[],offers:[],history:[{club:c,league:l,date:"Agosto 2026"}],competitions:{league:{name:l,played:0},cups:[]},seasonAwards:[],lastMatch:null,news:[`Sei il nuovo allenatore di ${c}.`],formation:"4-3-3",tab:"home",badge:"",teamId:null,loadingSquad:true,marketSearch:"",marketMax:"",marketTeam:"",marketRole:""};initTable();render();loadRealSquad(c)}
+function save(){localStorage.setItem("careerManagerSave",JSON.stringify(S));toast("Carriera salvata")}
+function load(){let x=localStorage.getItem("careerManagerSave");if(!x){toast("Nessun salvataggio trovato.");return}try{S=JSON.parse(x);ensureCompetitions();render();if(S.club)loadRealSquad(S.club)}catch(e){toast("Salvataggio non valido.")}}
+function badge(){return S.badge?`<img class="badge" src="${esc(S.badge)}" alt="Stemma" onerror="this.style.display='none'">`:`<div class="player-avatar" style="width:42px;height:42px">${esc(initials(S.club))}</div>`}
+function pimg(p){return p.photo?`<img class="player-photo" src="${esc(p.photo)}" alt="${esc(p.name)}" onerror="this.style.display='none'">`:`<div class="player-avatar">${esc(initials(p.name))}</div>`}
+function nav(){return `<nav>${[["home","🏠 Home"],["competitions","🏆 Coppe"],["squad","👥 Rosa"],["tactics","🧠 Tattica"],["youth","🌱 Vivaio"],["market","💰 Mercato"],["calendar","📅 Calendario"],["table","🏆 Classifica"],["offers","📩 Offerte"],["career","🧳 Carriera"]].map(x=>`<button class="${S.tab==x[0]?'primary':''}" onclick="go('${x[0]}')">${x[1]}</button>`).join("")}<button onclick="save()">💾 Salva</button><button onclick="load()">📂 Carica</button></nav>`}
+function render(){if(!S.started){startScreen();return}document.getElementById("app").innerHTML=`<div class="screen"><div class="team-title">${badge()}<div><b>⚽ FOOTBALL CAREER MANAGER</b><div class="muted">${esc(S.club)} · ${esc(S.league)} · ${S.season}/${S.season+1}</div></div></div>${nav()}</div><main>${pages[S.tab]()}</main><div id="toast" class="toast"></div>`}
+function startScreen(){
+ document.getElementById("app").innerHTML=`<div class="screen"><h1>⚽ FOOTBALL CAREER MANAGER</h1>
+ <p class="muted">Piramide calcistica europea: Paese → categoria → squadre.</p>
+ <div class="grid">${Object.keys(pyramid).map(c=>`<button onclick="country('${c}')">🌍 ${c}</button>`).join("")}</div>
+ <div id="clubs"></div></div><div id="toast" class="toast"></div>`
+}
+function country(c){
+ const tiers=pyramid[c];
+ document.getElementById("clubs").innerHTML=`<div class="screen"><h2>🌍 ${esc(c)}</h2>
+ ${Object.entries(tiers).map(([tier,teams])=>`<div class="card"><h3>▾ ${esc(tier)}</h3><div class="grid">${teams.map(t=>`<div class="card"><b>${esc(t)}</b><br><small class="muted">Rosa reale + stemma caricati online</small><br><button class="primary" onclick="start('${c} — ${tier}','${t}')">Inizia carriera</button></div>`).join("")}</div></div>`).join("")}</div>`
+}
+function clubs(l){document.getElementById("clubs").innerHTML=`<h2>${esc(l)}</h2><div class="grid">${leagues[l].map(c=>`<div class="card"><b>${esc(c)}</b><p class="muted">Forza ${power[c]||76}</p><button class="primary" onclick="start('${l}','${c}')">Inizia con ${esc(c)}</button></div>`).join("")}</div>`}
+function go(t){S.tab=t;render()}
+function rank(){return Object.entries(S.table).sort((a,b)=>b[1].pts-a[1].pts).findIndex(x=>x[0]==S.club)+1}
+function home(){return `<div class="screen"><div class="team-title">${badge()}<div><h1 style="margin:0">${esc(S.club)}</h1><span class="muted">${esc(S.league)}</span></div></div><p>Giornata ${S.match+1} · ${S.month==1?"Mercato di gennaio aperto":S.month>=5?"Fine stagione vicina":"Stagione in corso"}</p><div class="stats"><div class="card"><div class="big">${money(S.budget)}</div>Budget</div><div class="card"><div class="big">${S.table[S.club]?.pts||0}</div>Punti</div><div class="card"><div class="big">${rank()}°</div>Posizione</div><div class="card"><div class="big">${S.rep}</div>Reputazione</div></div><br><button class="primary" onclick="match()">⚽ Gioca partita</button><button onclick="simulate()">⏩ Simula 5 partite</button></div><div class="grid"><div class="screen"><h3>Ultimi risultati</h3>${S.results.slice(-6).reverse().map(x=>`<div class="row">${esc(x)}</div>`).join("")||"Nessuna partita."}</div><div class="screen"><h3>News</h3>${S.news.slice(0,8).map(x=>`<div class="row">• ${esc(x)}</div>`).join("")}</div><div class="screen"><h3>Rosa</h3><p>${S.loadingSquad?"⏳ Caricamento rosa reale…":"✅ "+S.players.length+" giocatori"}</p><button onclick="loadRealSquad('${esc(S.club)}')">🔄 Aggiorna rosa reale</button></div></div>`}
+function squad(){return `<div class="screen"><h2>👥 Rosa ${S.loadingSquad?"— caricamento…":"("+S.players.length+" giocatori)"}</h2><p class="muted">La lista arriva dalla rosa della squadra presente nella fonte dati online.</p>${S.players.map(p=>`<div class="row"><div class="player-row" onclick="showFullPlayer(${p.id})">${pimg(p)}<span><b>${esc(p.name)}</b><br><small class="muted">${esc(p.pos)} · ${p.age} anni · ${natLabel(p)} · Forma ${p.form.toFixed(1)}</small></span></div><span><b>${p.ovr}</b> <span class="greenText">${p.pot}</span></span></div>`).join("")}</div>`}
+
+function enrichPlayer(p){
+  const o=p.ovr||70;
+  p.attributes=p.attributes||{
+    PAC:Math.max(45,Math.min(98,o+Math.floor(Math.random()*15-7))),
+    SHO:Math.max(40,Math.min(98,o+Math.floor(Math.random()*15-7))),
+    PAS:Math.max(40,Math.min(98,o+Math.floor(Math.random()*15-7))),
+    DRI:Math.max(40,Math.min(98,o+Math.floor(Math.random()*15-7))),
+    DEF:Math.max(35,Math.min(98,o+Math.floor(Math.random()*15-7))),
+    PHY:Math.max(40,Math.min(98,o+Math.floor(Math.random()*15-7)))
+  };
+  p.seasonStats=p.seasonStats||{apps:0,starts:0,minutes:0,goals:0,assists:0,cleanSheets:0,yellow:0,red:0,rating:7.0};
+  p.transferHistory=p.transferHistory||[];
+  return p;
+}
+
+async function loadPlayerDetails(id,index){
+  try{
+    const d=await apiJson(`${API}/lookupplayer.php?id=${encodeURIComponent(id)}`);
+    const p=d.players&&d.players[0]; if(!p)return;
+    let q=enrichPlayer(S.players[index]);
+    q.nationality=p.strNationality||q.nationality;
+    q.number=p.strNumber||q.number;
+    q.birthPlace=p.strBirthLocation||q.birthPlace;
+    q.height=p.strHeight||q.height;
+    q.weight=p.strWeight||q.weight;
+    q.transferHistory=q.transferHistory||[];
+    S.players[index]=q; localStorage.setItem("realRoster_"+S.club,JSON.stringify({badge:S.badge,teamId:S.teamId,players:S.players,updated:Date.now()}));
+    showFullPlayer(index);
+  }catch(e){showFullPlayer(index)}
+}
+
+function showFullPlayer(id){
+  let p=enrichPlayer(S.players[id]);
+ 
+  const hist=p.transferHistory.length?p.transferHistory.map(x=>`<div class="row">${esc(x.season||"")} · ${esc(x.from||"Svincolato")} → ${esc(x.to||S.club)} · ${esc(x.fee||"—")}</div>`).join(""):"<p class='muted'>Storico trasferimenti non disponibile nella fonte dati.</p>";
+  document.getElementById("modalBody").innerHTML=`
+  <div class="player-row">${pimg(p)}<div><h2 style="margin:0">${esc(p.name)}</h2><p>${esc(p.pos)} · ${p.age} anni · OVR <b>${p.ovr}</b></p></div></div>
+  <h3>Attributi</h3><div class="stats">${Object.entries(p.attributes).map(([k,v])=>`<div class="card"><div class="big">${v}</div>${k}</div>`).join("")}</div>
+  <h3>Stats stagione</h3><div class="stats">${Object.entries(p.seasonStats).map(([k,v])=>`<div class="card"><div class="big">${v}</div>${k}</div>`).join("")}</div>
+  <h3>Storico trasferimenti</h3>${hist}<br><button onclick="closeModal()">Chiudi</button>`;
+  document.getElementById("modal").style.display="flex";
+}
+
+function showPlayer(id){let p=S.players[id];if(!p)return;document.getElementById("modalBody").innerHTML=`<div class="player-row">${pimg(p)}<div><h2 style="margin:0">${esc(p.name)}</h2><p>${p.pos} · ${p.age} anni</p></div></div><div class="stats"><div class="card"><div class="big">${p.ovr}</div>OVERALL</div><div class="card"><div class="big greenText">${p.pot}</div>POTENZIALE</div><div class="card"><div class="big">${p.apps}</div>PRESENZE</div><div class="card"><div class="big">${p.g}</div>GOL</div></div><br><button onclick="closeModal()">Chiudi</button>`;document.getElementById("modal").style.display="flex"}
+function tactics(){return `<div class="screen"><h2>🧠 Tattica</h2>${["4-3-3","4-2-3-1","3-5-2","4-4-2"].map(f=>`<button class="${S.formation==f?'primary':''}" onclick="S.formation='${f}';render()">${f}</button>`).join("")}<h3>XI</h3><div class="grid">${S.players.slice(0,11).map((p,i)=>`<div class="card player-row">${pimg(p)}<span>${i+1}. <b>${esc(p.name)}</b><br><span class="muted">${p.pos} · ${p.ovr}</span></span></div>`).join("")}</div></div>`}
+
+function completeYouth(){
+ while(S.youth.length<23){
+  const i=S.youth.length,n=youthNames[i%youthNames.length],roles=["POR","DC","DC","TD","TS","CC","CC","CC","AD","AS","ATT","ATT"],age=16+(i%3),ovr=52+(i%18);
+  S.youth.push(enrichPlayer({id:i,name:`${n[0]} ${n[1]}${i>=youthNames.length?" II":""}`,age,pos:roles[i%roles.length],ovr,pot:Math.min(92,ovr+16),team:age==16?"U17":age==17?"U18":"Primavera",status:"vivaio",nationality:n[2],photo:"",value:apiValue(ovr),apps:0,g:0,a:0,form:7,seasonStats:{apps:0,starts:0,minutes:0,goals:0,assists:0,cleanSheets:0,yellow:0,red:0,rating:7.0},transferHistory:[]}));
+ }
+}
+function youthPage(){completeYouth();S.youth=S.youth.map(enrichPlayer);return `<div class="screen"><h2>🌱 Primavera / U18 / U17 — Rosa completa</h2><p class="muted">Ogni settore giovanile mantiene una rosa completa separata dalla prima squadra.</p>${S.youth.map(p=>`<div class="row"><span><b>${esc(p.name)}</b><br><span class="muted">${p.team} · ${p.pos} · ${p.age} anni · OVR ${p.ovr} · POT ${p.pot}</span></span><span>${p.status=="vivaio"?`<button class="green" onclick="promote(${p.id})">Promuovi</button><button onclick="loan(${p.id})">Prestito</button><button class="gold" onclick="keep(${p.id})">Lascia</button>`:`<span class="pill">${p.status}</span>`}</span></div>`).join("")}</div>`}
+function promote(id){let p=S.youth[id];p.status="promosso";S.players.push({id:S.players.length,name:p.name,pos:p.pos,ovr:p.ovr,age:p.age,pot:p.pot,apps:0,g:0,a:0,form:7,value:apiValue(p.ovr),photo:""});S.news.unshift(`${p.name} promosso in prima squadra.`);render()}
+function loan(id){S.youth[id].status="prestito";S.news.unshift(`${S.youth[id].name} mandato in prestito.`);render()}
+function keep(id){S.news.unshift(`${S.youth[id].name} resta nel vivaio.`);render()}
+const marketPool=[["Kenan Yildiz","ATT",82,78000000,"Juventus"],["Nico Paz","CC",79,55000000,"Como"],["Scalvini","DC",82,52000000,"Atalanta"],["Bakayoko","AD",78,42000000,"PSV"],["Nusa","AS",77,35000000,"RB Leipzig"],["Lamine Yamal","AD",89,150000000,"Barcelona"],["Jude Bellingham","CC",91,180000000,"Real Madrid"],["Florian Wirtz","CC",89,130000000,"Bayer Leverkusen"],["Pedri","CC",90,120000000,"Barcelona"],["Bukayo Saka","AD",89,140000000,"Arsenal"]];
+function market(){let q=(S.marketSearch||"").toLowerCase(),max=S.marketMax?Number(S.marketMax)*1e6:Infinity,tm=S.marketTeam||"",rl=S.marketRole||"",pool=marketPool.filter(p=>(!q||p[0].toLowerCase().includes(q))&&p[3]<=max&&(!tm||p[4]===tm)&&(!rl||p[1]===rl));return `<div class="screen"><h2>💰 Mercato</h2><p class="muted">Cerca per nome, costo massimo, squadra o ruolo.</p><div class="searchbar"><input placeholder="Nome" value="${esc(S.marketSearch)}" oninput="S.marketSearch=this.value;render()"><input type="number" placeholder="Costo max (€M)" value="${esc(S.marketMax)}" oninput="S.marketMax=this.value;render()"><select onchange="S.marketTeam=this.value;render()"><option value="">Tutte le squadre</option>${[...new Set(marketPool.map(p=>p[4]))].map(t=>`<option ${tm===t?"selected":""}>${esc(t)}</option>`).join("")}</select><select onchange="S.marketRole=this.value;render()"><option value="">Tutti i ruoli</option>${["POR","DC","CC","AD","AS","ATT"].map(r=>`<option ${rl===r?"selected":""}>${r}</option>`).join("")}</select></div><p>Budget: <b class="goldText">${money(S.budget)}</b></p><div class="grid">${pool.map(p=>`<div class="card"><b>${esc(p[0])}</b><p class="muted">${p[1]} · ${esc(p[4])} · OVR ${p[2]}</p><b class="goldText">${money(p[3])}</b><br><button class="primary" onclick="buy(${marketPool.indexOf(p)})">Acquista</button></div>`).join("")||"<p>Nessun giocatore trovato.</p>"}</div></div>`}
+function buy(i){if(S.month!=1&&S.month!=7){toast("Mercato chiuso: gennaio e luglio.");return}let p=marketPool[i];if(S.budget<p[3]){toast("Budget insufficiente");return}S.budget-=p[3];S.players.push({id:S.players.length,name:p[0],pos:p[1],ovr:p[2],age:21,pot:p[2]+9,apps:0,g:0,a:0,form:7,value:p[3],photo:""});S.news.unshift(`${p[0]} acquistato.`);toast(`✅ ${p[0]} acquistato!`);render()}
+function calendar(){return `<div class="screen"><h2>📅 Calendario</h2>${Array.from({length:38},(_,i)=>`<div class="row"><span>G${i+1} · ${i%2?"✈️":"🏠"} ${esc(leagues[S.league][(i+3)%leagues[S.league].length])}</span><b>${esc(S.results[i]||"—")}</b></div>`).join("")}</div>`}
+function table(){let a=Object.entries(S.table).sort((a,b)=>b[1].pts-a[1].pts);return `<div class="screen"><h2>🏆 ${esc(S.league)}</h2><table style="width:100%"><tr><th>#</th><th>Club</th><th>PG</th><th>V</th><th>N</th><th>P</th><th>PT</th><th>Europa</th></tr>${a.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x[0])}</td><td>${x[1].p}</td><td>${x[1].w}</td><td>${x[1].d}</td><td>${x[1].l}</td><td><b>${x[1].pts}</b></td><td>${i<6?qualificationFor(i+1):"—"}</td></tr>`).join("")}</table></div>`}
+function offers(){return `<div class="screen"><h2>📩 Offerte</h2>${S.offers.length?S.offers.map((o,i)=>`<div class="card"><h3>${esc(o.club)}</h3><span class="muted">${esc(o.league)}</span><p>Reputazione richiesta: ${o.req}</p><button class="primary" onclick="accept(${i})">ACCETTA</button><button onclick="S.offers.splice(${i},1);render()">Rifiuta</button></div>`).join(""):`<p>Nessuna offerta disponibile.</p>`}<button onclick="offersNow()">Genera offerte</button></div>`}
+function offersNow(){if(S.month!=1&&S.month<5){toast("Le offerte arrivano a gennaio o a fine stagione.");return}let all=[];for(let [l,cs] of Object.entries(leagues))for(let c of cs)if(c!=S.club&&(power[c]||76)<=S.rep+7)all.push([l,c]);if(!all.length){toast("Nessun club interessato.");return}let [l,c]=all[Math.floor(Math.random()*all.length)];S.offers.push({league:l,club:c,req:(power[c]||76)-5});S.tab="offers";render()}
+function accept(i){if(S.month!=1&&S.month<5){toast("Puoi cambiare club solo a gennaio o a fine stagione.");return}let o=S.offers[i];start(o.league,o.club);S.news.unshift(`Hai accettato l'offerta del ${o.club}.`)}
+function competitions(){ensureCompetitions();const pos=rank(),q=qualificationFor(pos),c=countryOfLeague(),national=(cupByCountry[c]||["Coppa nazionale"])[0];return `<div class="screen"><h2>🏆 Coppe e qualificazioni</h2><div class="stats"><div class="card competition"><div class="big">${pos}°</div>Classifica</div><div class="card competition"><div class="big">${q==="—"?"—":"✓"}</div>${q}</div><div class="card cup"><div class="big">🏆</div>${esc(national)}</div><div class="card competition"><div class="big">🇪🇺</div>Competizioni UEFA</div></div><h3>Qualificazione europea</h3><p>${q==="—"?"Non qualificato al momento.":"Se la stagione finisse oggi: <b>"+q+"</b>"}</p><h3>Coppe</h3>${S.competitions.cups.map(x=>`<div class="row cup"><span><b>${esc(x.name)}</b><br><span class="muted">${esc(x.round||"In corsa")}</span></span><span>${esc(x.status||"In corsa")}<br><small>${esc(x.lastResult||"—")}</small></span></div>`).join("")}</div>`}
+function career(){return `<div class="screen"><h2>🧳 Storico carriera</h2>${S.history.map(x=>`<div class="row"><span><b>${esc(x.club)}</b><br><span class="muted">${esc(x.league)}</span></span><b>${esc(x.date)}</b></div>`).join("")}</div>`}
+const cupByCountry={"Italia":["Coppa Italia","UEFA Champions League","UEFA Europa League","UEFA Conference League"],"Inghilterra":["FA Cup","EFL Cup","UEFA Champions League","UEFA Europa League","UEFA Conference League"],"Spagna":["Copa del Rey","Supercopa de España","UEFA Champions League","UEFA Europa League","UEFA Conference League"],"Germania":["DFB-Pokal","UEFA Champions League","UEFA Europa League","UEFA Conference League"],"Francia":["Coupe de France","UEFA Champions League","UEFA Europa League","UEFA Conference League"],"Olanda":["KNVB Beker","UEFA Champions League","UEFA Europa League","UEFA Conference League"],"Portogallo":["Taça de Portugal","UEFA Champions League","UEFA Europa League","UEFA Conference League"]};
+function countryOfLeague(){return String(S.league||"").split(" — ")[0]}
+function ensureCompetitions(){const c=countryOfLeague();if(!S.competitions)S.competitions={league:{name:S.league,played:0},cups:[]};S.competitions.cups=S.competitions.cups||[];const national=(cupByCountry[c]||["Coppa nazionale"])[0];if(!S.competitions.cups.find(x=>x.name===national))S.competitions.cups.push({name:national,round:"1° turno",status:"in corsa"});}
+function qualificationFor(pos){if(pos<=4)return"🏆 Champions League";if(pos===5)return"🟠 Europa League";if(pos===6)return"🟢 Conference League";return"—"}
+function updateSeasonCompetitions(){ensureCompetitions();const pos=rank(),q=qualificationFor(pos);S.seasonAwards=[{type:"qualification",text:q,position:pos}];S.news.unshift(q==="—"?`${S.club}: ${pos}° posto, nessuna coppa europea.`:`${S.club}: qualificato alla ${q}!`);}
+function showMatchAnimation(title,result,win){
+ let m=document.getElementById("matchModal");if(!m){m=document.createElement("div");m.id="matchModal";m.className="modal";document.body.appendChild(m)}
+ m.innerHTML=`<div class="result-hero"><div class="muted">${esc(title)}</div><h1 class="${win?'goal':''}">${win?'🎉 VITTORIA':'⚽ FINALE'}</h1><div class="matchbox"><div><b>${esc(S.club)}</b></div><div><strong style="font-size:38px">${esc(result)}</strong></div><div><b>Avversario</b></div></div><p>${win?'Tre punti pesanti! La classifica è stata aggiornata.':'Partita terminata. La classifica è stata aggiornata.'}</p><button class="primary" onclick="this.closest('.modal').style.display='none'">Continua</button></div>`;
+ m.style.display="flex";
+}
+function match(){
+ ensureCompetitions();
+ const teams=leagues[S.league],opp=teams[(S.match+3)%teams.length],A=power[S.club]||76,B=power[opp]||76;
+ const x=Math.min(5,Math.floor(Math.random()*3)+(Math.random()<A/B*.48?1:0)),y=Math.min(5,Math.floor(Math.random()*3)+(Math.random()<B/A*.42?1:0));
+ const t=S.table[S.club],o=S.table[opp];t.p++;o.p++;t.gf+=x;t.ga+=y;o.gf+=y;o.ga+=x;
+ if(x>y){t.w++;t.pts+=3;o.l++;S.rep++;}else if(x===y){t.d++;t.pts++;o.d++;o.pts++;}else{t.l++;o.w++;o.pts+=3;S.rep=Math.max(1,S.rep-1);}
+ // Simula anche le altre partite della giornata: la classifica cambia davvero a ogni giornata.
+ const rest=teams.filter(c=>c!==S.club&&c!==opp);for(let i=0;i+1<rest.length;i+=2){const h=rest[i],a=rest[i+1],ha=Math.min(4,Math.floor(Math.random()*3)+(Math.random()<((power[h]||70)/(power[a]||70))*.35?1:0)),hb=Math.min(4,Math.floor(Math.random()*3)+(Math.random()<((power[a]||70)/(power[h]||70))*.35?1:0)),ht=S.table[h],at=S.table[a];ht.p++;at.p++;ht.gf+=ha;ht.ga+=hb;at.gf+=hb;at.ga+=ha;if(ha>hb){ht.w++;ht.pts+=3;at.l++;}else if(ha===hb){ht.d++;ht.pts++;at.d++;at.pts++;}else{ht.l++;at.w++;at.pts+=3;}}
+ S.players.slice(0,11).forEach(p=>{p.apps++;p.seasonStats=p.seasonStats||{apps:0,starts:0,minutes:0,goals:0,assists:0,cleanSheets:0,yellow:0,red:0,rating:7};p.seasonStats.apps++;p.seasonStats.starts++;p.seasonStats.minutes+=90;p.seasonStats.goals+=(Math.random()<.1?1:0);p.seasonStats.assists+=(Math.random()<.13?1:0);p.seasonStats.rating=+(6.4+Math.random()*2.1).toFixed(1);p.form=Math.max(5,Math.min(9.5,p.form+(x>y?.2:x<y?-.15:.03)));});
+ S.results[S.match]=`${S.club} ${x}-${y} ${opp}`;S.lastMatch={title:S.league,result:S.results[S.match],win:x>y};S.news.unshift(`G${S.match+1}: ${S.results[S.match]}`);S.match++;S.competitions.league.played++;
+ showMatchAnimation(S.league,S.results[S.match-1],x>y);
+ if(S.match>=38){updateSeasonCompetitions();S.month=7;S.season++;S.match=0;S.players.forEach(p=>{p.age++;p.form=7;p.seasonStats={apps:0,starts:0,minutes:0,goals:0,assists:0,cleanSheets:0,yellow:0,red:0,rating:7}});initTable();S.competitions={league:{name:S.league,played:0},cups:[]};}
+ render();
+}
+function simulate(){
+ ensureCompetitions();let played=0;
+ for(let i=0;i<5;i++){const teams=leagues[S.league],opp=teams[(S.match+3)%teams.length],A=power[S.club]||76,B=power[opp]||76,x=Math.min(5,Math.floor(Math.random()*3)+(Math.random()<A/B*.48?1:0)),y=Math.min(5,Math.floor(Math.random()*3)+(Math.random()<B/A*.42?1:0)),t=S.table[S.club],o=S.table[opp];t.p++;o.p++;t.gf+=x;t.ga+=y;o.gf+=y;o.ga+=x;if(x>y){t.w++;t.pts+=3;o.l++;}else if(x===y){t.d++;t.pts++;o.d++;o.pts++;}else{t.l++;o.w++;o.pts+=3;}S.results[S.match]=`${S.club} ${x}-${y} ${opp}`;S.match++;S.competitions.league.played++;played++;if(S.match>=38){updateSeasonCompetitions();S.match=0;S.season++;initTable();break;}}
+ S.news.unshift(`⏩ Simulazione rapida: ${played} giornate completate. Classifica aggiornata.`);render();toast(`⏩ ${played} giornate simulate`);
+}
+function closeModal(){document.getElementById("modal").style.display="none"}
+const pages={home,competitions,squad,tactics,youth:youthPage,market,calendar,table,offers,career};
+render();
+</script>
+
+</body></html>
