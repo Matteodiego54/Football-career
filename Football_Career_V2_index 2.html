@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="it"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07090d"><meta name="apple-mobile-web-app-capable" content="yes">
+<title>Football Career V2</title>
+<style>
+:root{--bg:#07090d;--panel:#11161e;--panel2:#171d27;--line:#2a3340;--text:#f5f7fa;--muted:#8d98a6;--red:#ef233c;--green:#36d27b;--gold:#f3c75f;--blue:#5da9ff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}
+button,input,select{font:inherit}button{border:0;border-radius:11px;padding:11px 13px;background:#252d38;color:#fff;font-weight:800}button:active{transform:scale(.98)}button.primary{background:var(--red)}button.green{background:#145b3a}button.gold{background:#69531b}
+.app{max-width:820px;margin:auto;padding-bottom:92px}.top{position:sticky;top:0;z-index:10;background:#090c11ee;backdrop-filter:blur(16px);border-bottom:1px solid var(--line);padding:12px 15px;display:flex;justify-content:space-between;align-items:center}.brand{font-weight:950}.red{color:var(--red)}.muted{color:var(--muted)}.small{font-size:12px}
+.hero{margin:14px;border-radius:20px;padding:18px;background:linear-gradient(135deg,#321117,#121923);border:1px solid #47202a}.hero h1{margin:0 0 5px;font-size:30px}
+.panel{margin:12px 14px;border:1px solid var(--line);border-radius:17px;background:var(--panel);overflow:hidden}.pad{padding:15px}.row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 14px;border-bottom:1px solid #252d37}.row:last-child{border-bottom:0}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.card{background:var(--panel2);border:1px solid #303a48;border-radius:13px;padding:12px}.big{font-size:25px;font-weight:950}.greenText{color:var(--green)}.goldText{color:var(--gold)}.blueText{color:var(--blue)}
+.tabs{display:flex;gap:7px;overflow:auto;padding:10px 14px}.tabs button{white-space:nowrap}.tag{font-size:11px;padding:4px 7px;border-radius:6px;background:#29313c;color:#dbe2ea}.tag.red{background:#4d1720}.tag.green{background:#12432f}
+.nav{position:fixed;bottom:0;left:0;right:0;z-index:15;display:flex;justify-content:space-around;background:#0c1016f2;backdrop-filter:blur(18px);border-top:1px solid var(--line);padding:7px 5px calc(7px + env(safe-area-inset-bottom));}.nav button{background:transparent;padding:6px 7px;font-size:10px;color:#9da7b4}.nav button.active{color:#fff}.nav button span{font-size:18px}
+input,select{width:100%;background:#0c1117;border:1px solid #303946;border-radius:10px;padding:11px;color:#fff;outline:none}.filters{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.modal{position:fixed;inset:0;background:#000b;z-index:30;display:none;align-items:flex-end}.sheet{width:100%;max-width:820px;margin:auto;background:#11171f;border-radius:20px 20px 0 0;border:1px solid var(--line);padding:17px;max-height:91vh;overflow:auto}.close{float:right}
+.score{font-size:32px;font-weight:950;letter-spacing:-1px}.event{padding:9px 0;border-bottom:1px solid #252d37}.event:last-child{border:0}.timeline{max-height:320px;overflow:auto}
+@media(min-width:650px){.grid{grid-template-columns:repeat(4,1fr)}.filters{grid-template-columns:repeat(4,1fr)}}
+</style></head><body><div id="app"></div><div id="modal" class="modal"><div id="sheet" class="sheet"></div></div>
+<script>
+const LEAGUES={
+"Italia|Serie A":["Inter","AC Milan","Juventus","Napoli","Atalanta","Como 1907","Roma","Fiorentina","Bologna","Udinese","Sassuolo","Lazio","Parma","Genoa","Torino","Cagliari","Venezia","Lecce","Monza","Frosinone"],
+"Inghilterra|Premier League":["Arsenal","Manchester City","Liverpool","Manchester United","Chelsea","Tottenham","Newcastle","Aston Villa","West Ham","Everton","Brighton","Fulham","Brentford","Leeds United","Burnley","Coventry City","Ipswich Town","Hull City","Crystal Palace","Nottingham Forest"],
+"Spagna|LaLiga":["Real Madrid","Barcelona","Atletico Madrid","Athletic Club","Osasuna","Celta Vigo","Alaves","Elche","Getafe","Levante","Malaga","Racing Santander","Rayo Vallecano","Deportivo","Espanyol","Real Betis","Real Sociedad","Sevilla","Valencia","Villarreal"],
+"Germania|Bundesliga":["Bayern Munich","Borussia Dortmund","Bayer Leverkusen","RB Leipzig","Stuttgart","Eintracht Frankfurt","Freiburg","Wolfsburg","Mainz","Union Berlin","Hamburg","St Pauli"],
+"Francia|Ligue 1":["Paris Saint-Germain","Marseille","Lyon","Monaco","Lille","Nice","Lens","Rennes","Strasbourg","Nantes","Toulouse","Brest","Reims","Saint-Etienne"],
+"Olanda|Eredivisie":["Ajax","PSV","Feyenoord","AZ Alkmaar","Twente","Utrecht","Groningen","Heerenveen","Sparta Rotterdam","NEC"],
+"Portogallo|Primeira Liga":["Benfica","Porto","Sporting CP","Braga","Vitoria","Boavista","Famalicao","Rio Ave","Gil Vicente","Estoril"]
+};
+const LOWER={
+"Italia":["Serie B","Serie C","Serie D"],"Inghilterra":["Championship","League One","League Two"],"Spagna":["Segunda","Primera Federación","Segunda Federación"],"Germania":["2. Bundesliga","3. Liga","Regionalliga"],"Francia":["Ligue 2","National","National 2"],"Olanda":["Eerste Divisie","Tweede Divisie"],"Portogallo":["Liga Portugal 2","Liga 3","Campeonato de Portugal"]
+};
+const CLUB_OVR={"Inter":85,"AC Milan":84,"Juventus":82,"Napoli":83,"Atalanta":81,"Como 1907":78,"Roma":82,"Arsenal":88,"Manchester City":92,"Liverpool":89,"Manchester United":82,"Chelsea":84,"Real Madrid":92,"Barcelona":89,"Atletico Madrid":87,"Bayern Munich":91,"Borussia Dortmund":85,"Bayer Leverkusen":86,"Paris Saint-Germain":91,"Ajax":82,"PSV":83,"Feyenoord":81,"Benfica":84,"Porto":84,"Sporting CP":84};
+const REAL={
+"AC Milan":[
+["Mike Maignan","POR",87,31,88,20,2031],["Pietro Terracciano","POR",75,36,75,.9,2027],["Lorenzo Torriani","POR",69,21,84,.8,2030],
+["Fikayo Tomori","DC",82,28,83,17,2027],["Strahinja Pavlovic","DC",80,25,85,15,2029],["Matteo Gabbia","DC",78,27,82,9,2029],["Koni De Winter","DC",79,24,86,16,2030],
+["Alexis Saelemaekers","TD",81,27,85,22,2031],["Davide Bartesaghi","TS",72,20,84,7,2030],["Zachary Athekame","TD",70,21,82,5,2030],
+["Ruben Loftus-Cheek","CC",79,30,80,8.5,2027],["Ismael Bennacer","CDC",80,28,84,8,2027],["Adrien Rabiot","CC",84,31,85,18,2028],
+["Warren Bondo","CC",75,22,84,8,2029],["Christian Comotto","CC",67,18,84,4,2028],["Kevin Zeroli","CC",68,21,83,3,2028],
+["Christian Pulisic","AD",86,27,90,40,2027],["Rafael Leao","AS",88,27,94,50,2028],["Christopher Nkunku","COC",83,28,87,35,2030],
+["Alphadjo Cisse","COC",68,18,86,3,2030],["Goncalo Ramos","ATT",84,25,90,45,2030],["Francesco Camarda","ATT",72,18,93,12,2027]
+],
+"Inter":[
+["Josep Martinez","POR",79,28,83,10,2029],["Ivan Provedel","POR",78,32,78,3,2029],["Raffaele Di Gennaro","POR",70,32,70,.3,2027],
+["Alessandro Bastoni","DC",89,27,93,65,2028],["Yann Bisseck","DC",82,25,89,50,2029],["Manuel Akanji","DC",84,30,85,17,2028],["Benjamin Pavard","DC",84,30,85,12,2028],
+["Federico Dimarco","TS",87,28,90,50,2027],["Carlos Augusto","TS",81,27,85,23,2028],
+["Hakan Calhanoglu","CDC",88,32,89,16,2027],["Kristjan Asllani","CDC",78,24,87,12,2028],["Nicolò Barella","CC",89,29,92,50,2029],["Petar Sucic","CC",22,22,91,40,2030],
+["Davide Frattesi","CC",83,26,87,22,2028],["Andy Diouf","CC",78,23,88,20,2030],["Piotr Zielinski","CC",82,32,82,10,2028],["Henrikh Mkhitaryan","CC",77,37,77,3,2027],
+["Luis Henrique","AD",80,24,86,22,2030],["Yanis Massolin","COC",72,23,84,4.5,2030],
+["Lautaro Martinez","ATT",91,28,94,85,2029],["Marcus Thuram","ATT",88,28,91,50,2028],["Pio Esposito","ATT",78,21,92,45,2030],["Ange-Yoan Bonny","ATT",79,22,88,35,2030]
+],
+"Juventus":[
+["Mattia Perin","POR",80,33,80,2,2027],["Carlo Pinsoglio","POR",70,36,70,.2,2027],["Michele Di Gregorio","POR",83,29,87,18,2029],
+["Bremer","DC",86,29,89,45,2029],["Daniele Rugani","DC",75,31,75,2,2028],["Juan Cabal","TS",77,25,84,7,2029],["Federico Gatti","DC",81,28,85,18,2030],
+["Jérémie Boga","AS",79,29,82,8,2027],["Andrea Cambiaso","TS",82,26,90,35,2029],["Pierre Kalulu","DC",80,26,86,20,2029],
+["Arthur Melo","CC",73,29,75,4,2027],["Manuel Locatelli","CDC",83,28,86,20,2028],["Teun Koopmeiners","CC",84,28,88,32,2029],
+["Khéphren Thuram","CC",82,25,91,35,2029],["Douglas Luiz","CDC",82,28,86,30,2029],
+["Francisco Conceicao","AD",83,23,92,35,2030],["Kenan Yildiz","COC",84,21,96,70,2030],["Dusan Vlahovic","ATT",85,26,90,45,2028],["Arkadiusz Milik","ATT",76,32,76,1.5,2027]
+],
+"Real Madrid":[["Thibaut Courtois","POR",90,34,90,25,2028],["Andriy Lunin","POR",82,27,87,12,2030],["Antonio Rudiger","DC",87,33,87,10,2027],["Eder Militao","DC",87,28,92,40,2028],["David Alaba","DC",83,34,83,4,2027],["Dean Huijsen","DC",82,21,94,60,2031],["Federico Valverde","CC",89,28,94,130,2029],["Jude Bellingham","CC",91,23,97,160,2029],["Aurelien Tchouameni","CDC",86,26,92,80,2028],["Eduardo Camavinga","CC",84,23,94,80,2029],["Vinicius Jr","AS",91,26,96,180,2030],["Rodrygo","AD",87,25,93,90,2028],["Kylian Mbappe","ATT",92,27,97,220,2031]]
+};
+const YOUTH={
+"AC Milan":{
+"Primavera":[["Lorenzo Torriani","POR",21,69,84],["Christian Comotto","CC",18,67,84],["Kevin Zeroli","CC",21,68,83],["Francesco Camarda","ATT",18,72,93],["Alphadjo Cisse","COC",18,68,86],["Davide Bartesaghi","TS",20,72,84],["Mattia Liberali","COC",19,66,86],["Gabriele Alesi","AD",20,64,82],["Emanuele Sala","CC",19,62,80],["Andrea Bozzolan","TS",22,61,78],["Matteo Longoni","ATT",19,60,82],["Luka Romero","COC",21,71,86]],
+"U18":[["Giovane Milan 01","POR",17,56,80],["Giovane Milan 02","DC",17,57,82],["Giovane Milan 03","DC",17,55,81],["Giovane Milan 04","TS",17,58,83],["Giovane Milan 05","TD",17,56,82],["Giovane Milan 06","CC",17,60,86],["Giovane Milan 07","CC",17,59,84],["Giovane Milan 08","COC",17,61,87],["Giovane Milan 09","AS",17,60,86],["Giovane Milan 10","AD",17,62,88],["Giovane Milan 11","ATT",17,63,89],["Giovane Milan 12","ATT",17,58,84]],
+"U17":[["Milan U17 01","POR",16,52,78],["Milan U17 02","DC",16,53,80],["Milan U17 03","DC",16,51,81],["Milan U17 04","TS",16,54,82],["Milan U17 05","TD",16,52,80],["Milan U17 06","CC",16,56,85],["Milan U17 07","CC",16,55,83],["Milan U17 08","COC",16,57,86],["Milan U17 09","AS",16,55,85],["Milan U17 10","AD",16,58,87],["Milan U17 11","ATT",16,59,89],["Milan U17 12","ATT",16,54,84]]
+}};
+function makeRoster(club){
+ let r=REAL[club]; if(r) return r.map((x,i)=>({id:i,name:x[0],pos:x[1],ovr:x[2],age:x[3],pot:x[4],value:x[5],contract:x[6],apps:0,goals:0,form:7.0,inj:0}));
+ let base=CLUB_OVR[club]||75, names=["Portiere","Difensore 1","Difensore 2","Terzino","Centrocampista 1","Centrocampista 2","Trequartista","Ala","Ala 2","Attaccante","Riserva 1","Riserva 2","Riserva 3","Riserva 4","Riserva 5","Riserva 6","Riserva 7","Riserva 8","Riserva 9","Riserva 10"];
+ return names.map((n,i)=>({id:i,name:n+" · "+club,pos:["POR","DC","DC","TD","CC","CC","COC","AS","AD","ATT"][i]||"CC",ovr:Math.max(55,base-(i%6)-Math.floor(Math.random()*3)),age:19+(i%15),pot:base+Math.max(0,8-i%9),value:Math.max(.2,(base-(i%8))*0.6),contract:2027+(i%4),apps:0,goals:0,form:7,inj:0}));
+}
+function youthFor(club){
+ if(YOUTH[club]) return Object.fromEntries(Object.entries(YOUTH[club]).map(([k,a])=>[k,a.map((x,i)=>({id:i,name:x[0],pos:x[1],age:x[2],ovr:x[3],pot:x[4],status:"vivaio"}))]));
+ let out={};["Primavera","U18","U17"].forEach((lv,j)=>out[lv]=Array.from({length:18},(_,i)=>({id:i,name:`${club} ${lv} #${i+1}`,pos:["POR","DC","DC","TS","TD","CC","CC","COC","AS","AD","ATT"][i%11],age:18-j-i%2,ovr:55+j*2+(i%6),pot:75+(i%8),status:"vivaio"})));return out;
+}
+function tableFor(clubs){let t={};clubs.forEach(c=>t[c]={p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0});return t}
+let state=JSON.parse(localStorage.getItem("fcv2")||"null");
+function persist(){localStorage.setItem("fcv2",JSON.stringify(state))}
+function money(n){return "€"+(n>=1000?(n/1000).toFixed(1)+"B":n.toFixed(1)+"M")}
+function newGame(league,club){
+ let [country,division]=league.split("|"), clubs=LEAGUES[league];
+ state={country,division,league,club,season:2026,matchday:0,month:8,rep:CLUB_OVR[club]||75,budget:(CLUB_OVR[club]||75)*4,formation:"4-3-3",players:makeRoster(club),youth:youthFor(club),table:tableFor(clubs),results:[],events:[],news:[`Benvenuto a ${club}. Obiettivo: costruire una dinastia.`],offers:[],history:[{club,division,season:"2026/27"}],tab:"home",negotiation:null,competitions:[]}; persist(); render();
+}
+function choose(){app.innerHTML=`<div class="hero"><h1>⚽ Football Career V2</h1><p class="muted">Una carriera allenatore con mercato, coppe, vivai e simulazione live.</p></div><div class="panel pad"><h2>Scegli il paese</h2><div class="grid">${[...new Set(Object.keys(LEAGUES).map(x=>x.split("|")[0]))].map(c=>`<button onclick="pickCountry('${c}')">${c}</button>`).join("")}</div><div id="pick"></div></div>`}
+function pickCountry(c){let ls=Object.keys(LEAGUES).filter(x=>x.startsWith(c+"|"));document.getElementById("pick").innerHTML=`<h2>Competizione</h2>${ls.map(l=>`<div class="card" style="margin:8px 0"><b>${l.split("|")[1]}</b><div class="grid" style="margin-top:8px">${LEAGUES[l].map(t=>`<button onclick="newGame('${l}','${t}')">${t}</button>`).join("")}</div><p class="muted small">Categorie inferiori disponibili: ${(LOWER[c]||[]).join(" · ")}</p></div>`).join("")}`}
+function header(){return `<div class="top"><span class="brand"><span class="red">⚽</span> FOOTBALL CAREER</span><span class="small">${state.club} · ${state.season}/${state.season+1}</span></div>`}
+function nav(){let ns=[["home","⌂","Home"],["squad","👥","Rosa"],["youth","🌱","Vivaio"],["market","💶","Mercato"],["cups","🏆","Coppe"],["career","🧑‍💼","Carriera"]];return `<div class="nav">${ns.map(n=>`<button class="${state.tab==n[0]?'active':''}" onclick="go('${n[0]}')"><span>${n[1]}</span><br>${n[2]}</button>`).join("")}</div>`}
+function shell(c){app.innerHTML=header()+c+nav()}
+function go(t){state.tab=t;persist();render()}
+function home(){
+ let t=state.table[state.club],pos=Object.values(state.table).sort((a,b)=>b.pts-a.pts).findIndex(x=>x===t)+1;
+ return `<div class="hero"><div class="small muted">${state.country} · ${state.division}</div><h1>${state.club}</h1><div class="grid3"><div class="card"><div class="big">${pos}°</div><span class="muted">Posizione</span></div><div class="card"><div class="big">${t.pts}</div><span class="muted">Punti</span></div><div class="card"><div class="big">${state.rep}</div><span class="muted">Reputazione</span></div></div><p><span class="tag">${state.formation}</span> <span class="tag">${state.month==1?"MERCATO APERTO":state.month==7?"FINE STAGIONE":"STAGIONE"}</span></p><button class="primary" onclick="play()">▶ SIMULA PROSSIMA GARA</button> <button onclick="simWeek()">⏩ SIMULA SETTIMANA</button></div>
+ <div class="panel"><div class="row"><b>📰 News</b><span class="muted">Giornata ${state.matchday+1}</span></div>${state.news.slice(0,6).map(x=>`<div class="row">• ${x}</div>`).join("")}</div>
+ <div class="panel"><div class="row"><b>📊 Classifica</b><button onclick="showTable()">Apri</button></div>${standings().slice(0,6).map((x,i)=>`<div class="row"><span>${i+1}. ${x[0]}</span><b>${x[1].pts}</b></div>`).join("")}</div>`;
+}
+function standings(){return Object.entries(state.table).sort((a,b)=>b[1].pts-a[1].pts||((b[1].gf-b[1].ga)-(a[1].gf-a[1].ga)))}
+function showTable(){open(`<button class="close" onclick="closeM()">Chiudi</button><h2>📊 ${state.division}</h2>${standings().map((x,i)=>`<div class="row"><span><b>${i+1}</b> · ${x[0]}<br><span class="muted small">${x[1].p}G · ${x[1].w}V ${x[1].d}N ${x[1].l}P · ${x[1].gf}:${x[1].ga}</span></span><b>${x[1].pts}</b></div>`).join("")}`)}
+function squad(){
+ return `<div class="panel"><div class="pad"><h2>👥 Prima squadra <span class="muted small">${state.players.length} giocatori</span></h2><div class="filters"><input id="q" placeholder="Cerca giocatore" oninput="filterSquad()"><select id="pos" onchange="filterSquad()"><option>Tutti</option><option>POR</option><option>DC</option><option>TS</option><option>TD</option><option>CDC</option><option>CC</option><option>COC</option><option>AS</option><option>AD</option><option>ATT</option></select></div></div><div id="squadList">${playerRows(state.players)}</div></div>`;
+}
+function playerRows(arr){return arr.map(p=>`<div class="row"><span onclick="player(${p.id})"><b>${p.name}</b><br><span class="muted small">${p.pos} · ${p.age} anni · Contratto ${p.contract} · ${money(p.value)}</span></span><span><b>${p.ovr}</b> <span class="greenText">${p.pot}</span><br><span class="muted small">${p.apps} pres · ${p.goals} gol</span></span></div>`).join("")}
+function filterSquad(){let q=(document.getElementById("q")||{}).value?.toLowerCase()||"",pos=(document.getElementById("pos")||{}).value||"tutti";let a=state.players.filter(p=>(p.name.toLowerCase().includes(q))&&(pos=="Tutti"||p.pos==pos));document.getElementById("squadList").innerHTML=playerRows(a)}
+function player(id){let p=state.players.find(x=>x.id==id);open(`<button class="close" onclick="closeM()">Chiudi</button><h2>${p.name}</h2><p class="muted">${p.pos} · ${p.age} anni · contratto ${p.contract}</p><div class="grid"><div class="card"><div class="big">${p.ovr}</div>OVERALL</div><div class="card"><div class="big greenText">${p.pot}</div>POTENZIALE</div><div class="card"><div class="big">${money(p.value)}</div>VALORE</div><div class="card"><div class="big">${p.form.toFixed(1)}</div>FORMA</div></div><br><button class="gold" onclick="openNegotiation(${p.id})">Metti sul mercato</button> <button onclick="renew(${p.id})">Rinnova</button>`)}
+function youth(){
+ let tabs=Object.keys(state.youth);return `<div class="panel"><div class="pad"><h2>🌱 Settore giovanile</h2><p class="muted">Rose complete per Primavera, U18 e U17. Promozione e prestito individuali.</p></div><div class="tabs">${tabs.map((x,i)=>`<button onclick="youthTab('${x}')">${x}</button>`).join("")}</div><div id="youthList">${youthRows(state.youth.Primavera)}</div></div>`;
+}
+function youthRows(a){return a.map(p=>`<div class="row"><span><b>${p.name}</b><br><span class="muted small">${p.pos} · ${p.age} anni · ${p.status}</span></span><span><b>${p.ovr}</b> <span class="greenText">${p.pot}</span><br><button class="green" onclick="promoteYouth('${p.name}')">Promuovi</button> <button onclick="loanYouth('${p.name}')">Prestito</button></span></div>`).join("")}
+function youthTab(x){document.getElementById("youthList").innerHTML=youthRows(state.youth[x])}
+function promoteYouth(name){let all=Object.values(state.youth).flat(),p=all.find(x=>x.name==name);if(!p)return;p.status="promosso";state.players.push({id:state.players.length,name:p.name,pos:p.pos,ovr:p.ovr,age:p.age,pot:p.pot,value:Math.max(.1,(p.ovr-50)*.2),contract:2030,apps:0,goals:0,form:7});state.news.unshift(`${p.name} è stato promosso in prima squadra.`);persist();render()}
+function loanYouth(name){let p=Object.values(state.youth).flat().find(x=>x.name==name);if(p){p.status="in prestito";state.news.unshift(`${p.name} è partito in prestito per crescere.`);persist();render()}}
+function market(){
+ let all=[];Object.entries(REAL).forEach(([club,arr])=>arr.forEach(x=>{if(club!=state.club)all.push({club,name:x[0],pos:x[1],ovr:x[2],age:x[3],pot:x[4],value:x[5],contract:x[6]})}));
+ all.sort((a,b)=>b.ovr-a.ovr);
+ return `<div class="panel"><div class="pad"><h2>💶 Calciomercato</h2><p>Budget: <b class="goldText">${money(state.budget)}</b> · Finestra: <b>${state.month==1||state.month==7?"APERTA":"CHIUSA"}</b></p><div class="filters"><input id="mq" placeholder="Cerca"><select id="mpos"><option>Tutti</option><option>POR</option><option>DC</option><option>CC</option><option>COC</option><option>AS</option><option>AD</option><option>ATT</option></select></div></div><div id="marketList">${marketRows(all.slice(0,40))}</div></div>`;
+}
+function marketRows(a){return a.map((p,i)=>`<div class="row"><span><b>${p.name}</b><br><span class="muted small">${p.club} · ${p.pos} · ${p.age} anni · contratto ${p.contract}</span></span><span><b>${p.ovr}</b> · ${money(p.value)}<br><button class="primary" onclick='openBid(${JSON.stringify(p)})'>TRATTA</button></span></div>`).join("")}
+function openBid(p){open(`<button class="close" onclick="closeM()">Chiudi</button><h2>🤝 Trattativa per ${p.name}</h2><p class="muted">${p.club} · ${p.pos} · OVR ${p.ovr} · valore ${money(p.value)}</p><div class="card"><label>Offerta fissa (€M)</label><input id="fee" type="number" value="${Math.max(.1,p.value*.9).toFixed(1)}" step=".1"><br><br><label>Bonus (vittorie/gol/Champions)</label><input id="bonus" type="number" value="${(p.value*.1).toFixed(1)}" step=".1"><br><br><label>% futura rivendita</label><input id="sellon" type="number" value="10" min="0" max="50"></div><br><button class="primary" onclick='submitBid(${JSON.stringify(p)})'>INVIA OFFERTA</button>`)}
+function submitBid(p){let fee=+document.getElementById("fee").value,bonus=+document.getElementById("bonus").value,share=+document.getElementById("sellon").value;if(state.month!=1&&state.month!=7)return alert("La finestra è chiusa.");if(fee>state.budget)return alert("Budget insufficiente.");let threshold=p.value*(.9+Math.random()*.35);let ok=fee>=threshold;open(`<button class="close" onclick="closeM()">Chiudi</button><h2>${ok?"✅ OFFERTA ACCETTATA":"❌ OFFERTA RIFIUTATA"}</h2><p>${p.club} ha ${ok?"accettato":"rifiutato"} la tua proposta.</p><div class="card"><b>${money(fee)}</b> + ${money(bonus)} bonus + ${share}% futura rivendita</div>${ok?`<br><button class="primary" onclick='completeTransfer(${JSON.stringify(p)},${fee})'>CONCLUDI TRASFERIMENTO</button>`:"<br><button onclick='counter(${JSON.stringify(p)})'>CHIEDI CONTROFFERTA</button>"}`)}
+function counter(p){let need=(p.value*(1.1+Math.random()*.25)).toFixed(1);open(`<h2>📩 Controproposta</h2><p>${p.club} chiede <b>€${need}M</b>.</p><button class="primary" onclick='acceptCounter(${JSON.stringify(p)},${need})'>ACCETTA</button> <button onclick="closeM()">Rifiuta</button>`)}
+function acceptCounter(p,fee){if(+fee>state.budget)return alert("Budget insufficiente");completeTransfer(p,+fee)}
+function completeTransfer(p,fee){state.budget-=fee;state.players.push({id:state.players.length,name:p.name,pos:p.pos,ovr:p.ovr,age:p.age,pot:p.pot,value:p.value,contract:2030,apps:0,goals:0,form:7});state.news.unshift(`${p.name} è arrivato a ${state.club} per ${money(fee)}.`);closeM();persist();render()}
+function renew(id){let p=state.players.find(x=>x.id==id);p.contract=Math.max(p.contract+2,2030);state.news.unshift(`${p.name} ha rinnovato fino al ${p.contract}.`);persist();render()}
+function openNegotiation(id){alert("Il giocatore è stato segnalato come cedibile. Usa la sezione Mercato per gestire le offerte.")}
+
+function cups(){
+ let champ=state.rep>=85?"Champions League":state.rep>=78?"Europa League":"Conference League";
+ return `<div class="panel"><div class="pad"><h2>🏆 Coppe</h2><p>Qualificazione europea attuale: <b>${champ}</b></p></div><div class="row"><span>🇮🇹 Coppa nazionale</span><b>${state.matchday<4?"1° turno":"In corso"}</b></div><div class="row"><span>🌍 ${champ}</span><b>${state.rep>=78?"Qualificato":"Da conquistare"}</b></div><div class="row"><span>🌎 Supercoppa</span><b>—</b></div></div><div class="panel pad"><h3>Regola dinamica</h3><p class="muted">I posti UEFA vengono assegnati in base a piazzamento e coppa nazionale. La reputazione influenza le offerte e la probabilità di essere considerato da club europei.</p></div>`;
+}
+function career(){
+ return `<div class="panel"><div class="pad"><h2>🧑‍💼 Carriera allenatore</h2><div class="grid3"><div class="card"><div class="big">${state.rep}</div>REP</div><div class="card"><div class="big">${state.season}</div>STAGIONE</div><div class="card"><div class="big">${state.history.length}</div>CLUB</div></div></div>${state.history.map(x=>`<div class="row"><b>${x.club}</b><span class="muted">${x.division} · ${x.season}</span></div>`).join("")}</div><div class="panel pad"><h3>📩 Offerte allenatore</h3><button class="primary" onclick="coachOffers()">CERCA OFFERTE</button><div id="offers"></div></div>`;
+}
+function coachOffers(){if(state.month!=1&&state.month!=7)return alert("Le offerte importanti arrivano a gennaio o a fine stagione.");let arr=[];Object.entries(LEAGUES).forEach(([l,cs])=>cs.forEach(c=>{let o=CLUB_OVR[c]||70;if(c!=state.club&&o<=state.rep+5)arr.push({l,c,o})}));arr.sort(()=>Math.random()-.5);state.offers=arr.slice(0,4);document.getElementById("offers").innerHTML=state.offers.map((o,i)=>`<div class="card" style="margin-top:8px"><b>${o.c}</b><p class="muted">${o.l.replace("|"," · ")} · progetto ${o.o>=80?"ambizioso":"di crescita"}</p><button onclick="acceptCoach(${i})">ACCETTA INCARICO</button></div>`).join("");persist()}
+function acceptCoach(i){let o=state.offers[i],parts=o.l.split("|");state.country=parts[0];state.division=parts[1];state.league=o.l;state.club=o.c;state.players=makeRoster(o.c);state.youth=youthFor(o.c);state.budget=(CLUB_OVR[o.c]||70)*4;state.table=tableFor(LEAGUES[o.l]);state.history.push({club:o.c,division:parts[1],season:state.season});state.news.unshift(`Nuovo incarico: ${o.c}. Hai lasciato ${state.history[state.history.length-2].club}.`);state.offers=[];persist();render()}
+
+function play(){
+ let cs=LEAGUES[state.league],opp=cs[(state.matchday+2)%cs.length],a=CLUB_OVR[state.club]||75,b=CLUB_OVR[opp]||75;
+ let home=Math.random()<.5, x=home?a:b,y=home?b:a;
+ let gf=Math.max(0,Math.min(5,Math.round((x-y)/18+Math.random()*3))),ga=Math.max(0,Math.min(5,Math.round((y-x)/22+Math.random()*3)));
+ let t=state.table[state.club],o=state.table[opp];t.p++;o.p++;t.gf+=gf;t.ga+=ga;o.gf+=ga;o.ga+=gf;
+ if(gf>ga){t.w++;t.pts+=3;o.l++;state.rep++}else if(gf==ga){t.d++;t.pts++;o.d++;o.pts++}else{t.l++;o.w++;o.pts+=3;state.rep=Math.max(1,state.rep-1)}
+ let ev=liveEvents(gf,ga,opp);state.events=ev;state.results[state.matchday]=`${state.club} ${gf}-${ga} ${opp}`;state.news.unshift(`${state.results[state.matchday]} · ${ev.filter(e=>e.goal).length} gol`);
+ state.players.slice(0,Math.min(11,state.players.length)).forEach(p=>{p.apps++;p.form=Math.max(5,Math.min(9.5,p.form+(gf>ga?.15:gf<ga?-.12:.03)));if(gf&&Math.random()<.12)p.goals++});
+ state.matchday++; if(state.matchday==19)state.month=1;
+ if(state.matchday>=38){state.month=7;state.season++;state.matchday=0;state.players.forEach(p=>{p.age++;if(p.ovr<p.pot&&Math.random()<.65)p.ovr++});state.table=tableFor(cs);state.news.unshift(`🏁 Fine stagione. Benvenuto nella stagione ${state.season}/${state.season+1}.`);if(state.rep>=78)state.news.unshift("🌍 Il tuo piazzamento ti porta in una competizione UEFA.");}
+ persist();render();setTimeout(()=>openMatch(opp,gf,ga,ev),150)}
+function liveEvents(gf,ga,opp){
+ let total=Math.max(7,Math.min(14,gf+ga+7)),a=[];let used=0;
+ for(let i=0;i<total;i++){let minute=3+i*Math.floor(90/total)+Math.floor(Math.random()*4);let goal=used<gf+ga && Math.random()<.48;if(goal){used++;let team=used<=gf?state.club:opp;let p=state.players[Math.floor(Math.random()*Math.min(11,state.players.length))];a.push({m:Math.min(90,minute),goal:1,text:`⚽ ${team} — ${p?.name||"Attaccante"}`})}else if(Math.random()<.25)a.push({m:Math.min(90,minute),text:"🟨 Ammonizione"});else if(Math.random()<.12)a.push({m:Math.min(90,minute),text:"🔄 Cambio"});}
+ return a.sort((x,y)=>x.m-y.m)}
+function openMatch(opp,gf,ga,ev){open(`<div class="small muted">RISULTATO FINALE</div><h2>${state.club} <span class="score">${gf}–${ga}</span> ${opp}</h2><div class="timeline">${ev.map(e=>`<div class="event"><b>${e.m}'</b> &nbsp; ${e.text}</div>`).join("")}</div><br><div class="grid3"><div class="card"><b>${state.players.slice(0,11).filter(p=>p.form>=8).length}</b><br><span class="muted">In forma</span></div><div class="card"><b>${state.table[state.club].pts}</b><br><span class="muted">Punti</span></div><div class="card"><b>${state.rep}</b><br><span class="muted">Reputazione</span></div></div><br><button class="primary" onclick="closeM()">CONTINUA</button>`)}
+function simWeek(){for(let i=0;i<5;i++)play();closeM()}
+function render(){if(!state){choose();return}let pages={home,squad,youth,market,cups,career};shell(pages[state.tab||"home"]())}
+function open(x){document.getElementById("sheet").innerHTML=x;document.getElementById("modal").style.display="flex"}function closeM(){document.getElementById("modal").style.display="none"}
+render();
+</script></body></html>
