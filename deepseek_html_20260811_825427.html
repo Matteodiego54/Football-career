@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚽ Football Manager 2026 - Pro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a1a;
+            color: white;
+            min-height: 100vh;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid #00d2ff;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            background: linear-gradient(135deg, #00d2ff, #7a2ffc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: #8892b0;
+            font-size: 14px;
+        }
+
+        /* ===== CONTAINER ===== */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            background: #16213e;
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid #2a3a6e;
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+
+        .sidebar h2 {
+            color: #00d2ff;
+            font-size: 18px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #2a3a6e;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #00d2ff;
+            border-radius: 10px;
+        }
+
+        /* ===== GERARCHIA CAMPIONATI ===== */
+        .nazione {
+            margin-bottom: 10px;
+        }
+
+        .nazione-titolo {
+            background: #1a2a4e;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #00d2ff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+        }
+
+        .nazione-titolo:hover {
+            background: #2a3a6e;
+            border-color: #00d2ff;
+        }
+
+        .nazione-titolo .freccia {
+            transition: transform 0.3s;
+        }
+
+        .nazione-titolo .freccia.aperto {
+            transform: rotate(180deg);
+        }
+
+        .nazione-contenuto {
+            display: none;
+            padding-left: 15px;
+            margin-top: 5px;
+        }
+
+        .nazione-contenuto.aperto {
+            display: block;
+        }
+
+        .lega {
+            margin: 5px 0;
+        }
+
+        .lega-titolo {
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #8892b0;
+            transition: all 0.3s;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .lega-titolo:hover {
+            background: #1a2a4e;
+            color: white;
+        }
+
+        .lega-titolo.attiva {
+            color: #00d2ff;
+            background: #1a2a4e;
+        }
+
+        .lega-contenuto {
+            display: none;
+            padding-left: 15px;
+        }
+
+        .lega-contenuto.aperto {
+            display: block;
+        }
+
+        .squadra-link {
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #8892b0;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .squadra-link:hover {
+            background: #1a2a4e;
+            color: white;
+        }
+
+        .squadra-link.attiva {
+            background: #00d2ff;
+            color: #0a0a1a;
+            font-weight: bold;
+        }
+
+        .squadra-link .stemma {
+            font-size: 18px;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            min-height: 600px;
+        }
+
+        /* ===== DASHBOARD ===== */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: #16213e;
+            padding: 15px 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #2a3a6e;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: scale(1.02);
+        }
+
+        .card .label {
+            font-size: 12px;
+            color: #8892b0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .card .value {
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .card .value.gold {
+            color: #ffd700;
+        }
+        .card .value.green {
+            color: #00ff88;
+        }
+        .card .value.red {
+            color: #ff6b6b;
+        }
+        .card .value.blue {
+            color: #00d2ff;
+        }
+
+        /* ===== PULSANTI ===== */
+        .buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d2ff, #7a2ffc);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 210, 255, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #00ff88, #00b894);
+        }
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #fdcb6e, #f39c12);
+        }
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(253, 203, 110, 0.3);
+        }
+
+        /* ===== TABELLA CLASSIFICA ===== */
+        .classifica-container {
+            background: #16213e;
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid #2a3a6e;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        .classifica-container h2 {
+            color: #00d2ff;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 2px solid #2a3a6e;
+            color: #8892b0;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 1px;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #1a2a4e;
+        }
+
+        .pos-1 {
+            color: #ffd700;
+        }
+        .pos-2 {
+            color: #c0c0c0;
+        }
+        .pos-3 {
+            color: #cd7f32;
+        }
+
+        tr:hover {
+            background: #1a2a4e;
+        }
+        .mia-squadra {
+            background: #2a3a6e !important;
+            border-left: 3px solid #00d2ff;
+        }
+
+        /* ===== GIOCATORI ===== */
+        .giocatori-container {
+            background: #16213e;
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid #2a3a6e;
+        }
+
+        .giocatori-container h2 {
+            color: #00d2ff;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .giocatori-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .giocatore-card {
+            background: #1a2a4e;
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+            position: relative;
+        }
+
+        .giocatore-card:hover {
+            transform: translateY(-3px);
+            border-color: #00d2ff;
+            box-shadow: 0 5px 20px rgba(0, 210, 255, 0.1);
+        }
+
+        .giocatore-card .foto {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2a3a6e, #1a2a4e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin: 0 auto 10px;
+            border: 2px solid #2a3a6e;
+        }
+
+        .giocatore-card .nome {
+            font-weight: bold;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .giocatore-card .ruolo {
+            text-align: center;
+            color: #8892b0;
+            font-size: 12px;
+        }
+
+        .giocatore-card .ovr {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffd700;
+            margin: 5px 0;
+        }
+
+        .giocatore-card .stats {
+            display: flex;
+            justify-content: space-around;
+            font-size: 12px;
+            color: #8892b0;
+        }
+
+        .giocatore-card .stats span {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        /* ===== MODALE GIOCATORE ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.aperto {
+            display: flex;
+        }
+
+        .modal {
+            background: #16213e;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid #2a3a6e;
+            position: relative;
+        }
+
+        .modal::-webkit-scrollbar {
+            width: 5px;
+        }
+        .modal::-webkit-scrollbar-thumb {
+            background: #00d2ff;
+            border-radius: 10px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #8892b0;
+            transition: all 0.3s;
+            background: none;
+            border: none;
+        }
+
+        .modal-close:hover {
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        .modal .foto-grande {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2a3a6e, #1a2a4e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            margin: 0 auto 15px;
+            border: 3px solid #00d2ff;
+        }
+
+        .modal .nome-grande {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .modal .info-base {
+            text-align: center;
+            color: #8892b0;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .modal .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .modal .info-item {
+            background: #1a2a4e;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .modal .info-item .label {
+            font-size: 11px;
+            color: #8892b0;
+            text-transform: uppercase;
+        }
+
+        .modal .info-item .valore {
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 3px;
+        }
+
+        .modal .attributi {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin: 15px 0;
+        }
+
+        .modal .attributo {
+            background: #1a2a4e;
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .modal .attributo .label {
+            font-size: 10px;
+            color: #8892b0;
+            text-transform: uppercase;
+        }
+
+        .modal .attributo .valore {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .modal .storico {
+            margin-top: 15px;
+        }
+
+        .modal .storico h3 {
+            color: #00d2ff;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .modal .storico-item {
+            background: #1a2a4e;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 5px;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* ===== MESSAGGIO ===== */
+        .messaggio {
+            background: #2a3a6e;
+            padding: 12px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #00d2ff;
+            text-align: center;
+        }
+
+        /* ===== PARTITE ===== */
+        .partite-container {
+            background: #16213e;
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid #2a3a6e;
+            margin-top: 20px;
+        }
+
+        .partite-container h2 {
+            color: #00d2ff;
+            margin-bottom: 15px;
+        }
+
+        .partita {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 15px;
+            border-bottom: 1px solid #1a2a4e;
+        }
+
+        .partita:last-child {
+            border-bottom: none;
+        }
+
+        .partita .squadra {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .partita .risultato {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                position: static;
+                max-height: 400px;
+                overflow-y: auto;
+            }
+            .giocatori-grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            }
+            .modal {
+                padding: 20px;
+                margin: 10px;
+            }
+            .modal .info-grid {
+                grid-template-columns: 1fr;
+            }
+            .modal .attributi {
+                grid-template-columns: 1fr 1fr;
+            }
+            .dashboard {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .card .value {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .dashboard {
+                grid-template-columns: 1fr 1fr;
+            }
+            .header h1 {
+                font-size: 1.3em;
+            }
+            .buttons .btn {
+                padding: 8px 15px;
+                font-size: 12px;
+            }
+            .giocatori-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .giocatore-card .foto {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+            .giocatore-card .ovr {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <div class="header">
+        <h1>⚽ Football Manager 2026</h1>
+        <p>Gestisci la tua squadra • Serie A 2025/26</p>
+    </div>
+
+    <!-- ===== CONTAINER ===== -->
+    <div class="container">
+
+        <!-- ===== SIDEBAR ===== -->
+        <div class="sidebar" id="sidebar">
+            <h2>🏆 Campionati</h2>
+            <div id="gerarchia"></div>
+        </div>
+
+        <!-- ===== MAIN CONTENT ===== -->
+        <div class="main-content">
+
+            <!-- Messaggio -->
+            <div class="messaggio" id="messaggio">Benvenuto! Seleziona una squadra dalla sidebar per iniziare. 🏆</div>
+
+            <!-- Dashboard -->
+            <div class="dashboard" id="dashboard">
+                <div class="card">
+                    <div class="label">🏆 Campionato</div>
+                    <div class="value blue" id="campionato">Serie A</div>
+                </div>
+                <div class="card">
+                    <div class="label">📊 Posizione</div>
+                    <div class="value gold" id="posizione">-</div>
+                </div>
+                <div class="card">
+                    <div class="label">⚽ Gol Fatti</div>
+                    <div class="value green" id="golFatti">0</div>
+                </div>
+                <div class="card">
+                    <div class="label">🛡️ Gol Subiti</div>
+                    <div class="value red" id="golSubiti">0</div>
+                </div>
+                <div class="card">
+                    <div class="label">📅 Giornata</div>
+                    <div class="value blue" id="giornata">0 / 38</div>
+                </div>
+                <div class="card">
+                    <div class="label">🟢 Squadra</div>
+                    <div class="value" id="squadraNome" style="font-size:16px;">-</div>
+                </div>
+            </div>
+
+            <!-- Pulsanti -->
+            <div class="buttons">
+                <button class="btn btn-primary" onclick="simulaGiornata()">▶️ Simula Giornata</button>
+                <button class="btn btn-success" onclick="simulaStagione()">🏆 Simula Stagione</button>
+                <button class="btn btn-danger" onclick="resetGame()">🔄 Reset</button>
+            </div>
+
+            <!-- Classifica -->
+            <div class="classifica-container">
+                <h2>📊 Classifica <span id="classificaInfo"></span></h2>
+                <div id="classificaTabella"></div>
+            </div>
+
+            <!-- Ultime Partite -->
+            <div class="partite-container">
+                <h2>📋 Ultime Partite</h2>
+                <div id="partiteLista"></div>
+            </div>
+
+            <!-- Giocatori -->
+            <div class="giocatori-container">
+                <h2>⭐ Rosa Squadra <span id="giocatoriInfo"></span></h2>
+                <div class="giocatori-grid" id="giocatoriLista"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ===== MODALE GIOCATORE ===== -->
+    <div class="modal-overlay" id="modalGiocatore">
+        <div class="modal">
+            <button class="modal-close" onclick="chiudiModal()">✕</button>
+            <div id="modalContenuto"></div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // DATABASE COMPLETO - TUTTE LE SQUADRE CON GERARCHIA
+        // ============================================================
+
+        const CAMPIONATI = {
+            'Italia': {
+                stemma: '🇮🇹',
+                leghe: {
+                    'Serie A': {
+                        id: 'serie-a',
+                        squadre: [
+                            { id: 1, nome: 'Inter', stemma: '🔵⚫', allenatore: 'Simone Inzaghi', valoreTotale: 667,
+                                stadio: 'San Siro', città: 'Milano' },
+                            { id: 2, nome: 'Milan', stemma: '🔴⚫', allenatore: 'Paulo Fonseca', valoreTotale: 429,
+                                stadio: 'San Siro', città: 'Milano' },
+                            { id: 3, nome: 'Juventus', stemma: '⚫⚪', allenatore: 'Thiago Motta', valoreTotale: 500,
+                                stadio: 'Allianz Stadium', città: 'Torino' },
+                            { id: 4, nome: 'Roma', stemma: '🔴🟡', allenatore: 'Daniele De Rossi', valoreTotale: 466,
+                                stadio: 'Olimpico', città: 'Roma' },
+                            { id: 5, nome: 'Napoli', stemma: '🔵⚪', allenatore: 'Antonio Conte', valoreTotale: 350,
+                                stadio: 'Diego Maradona', città: 'Napoli' },
+                            { id: 6, nome: 'Atalanta', stemma: '🔵⚫', allenatore: 'Gian Piero Gasperini',
+                                valoreTotale: 280, stadio: 'Gewiss', città: 'Bergamo' },
+                            { id: 7, nome: 'Lazio', stemma: '🔵⚪', allenatore: 'Marco Baroni', valoreTotale: 210,
+                                stadio: 'Olimpico', città: 'Roma' },
+                            { id: 8, nome: 'Fiorentina', stemma: '🔴⚪', allenatore: 'Raffaele Palladino',
+                                valoreTotale: 220, stadio: 'Artemio Franchi', città: 'Firenze' },
+                            { id: 9, nome: 'Como', stemma: '🔵⚪', allenatore: 'Cesc Fàbregas', valoreTotale: 180,
+                                stadio: 'Giuseppe Sinigaglia', città: 'Como' },
+                            { id: 10, nome: 'Bologna', stemma: '🔴⚪', allenatore: 'Vincenzo Italiano', valoreTotale: 160,
+                                stadio: 'Renato Dall\'Ara', città: 'Bologna' },
+                            { id: 11, nome: 'Torino', stemma: '🔴⚪', allenatore: 'Paolo Vanoli', valoreTotale: 130,
+                                stadio: 'Olimpico Grande Torino', città: 'Torino' },
+                            { id: 12, nome: 'Genoa', stemma: '🔴⚪', allenatore: 'Alberto Gilardino', valoreTotale: 110,
+                                stadio: 'Luigi Ferraris', città: 'Genova' },
+                            { id: 13, nome: 'Cagliari', stemma: '🔴⚪', allenatore: 'Davide Nicola', valoreTotale: 90,
+                                stadio: 'Unipol Domus', città: 'Cagliari' },
+                            { id: 14, nome: 'Udinese', stemma: '⚫⚪', allenatore: 'Kosta Runjaić', valoreTotale: 95,
+                                stadio: 'Friuli', città: 'Udine' },
+                            { id: 15, nome: 'Lecce', stemma: '🔴🟡', allenatore: 'Luca Gotti', valoreTotale: 80,
+                                stadio: 'Via del Mare', città: 'Lecce' },
+                            { id: 16, nome: 'Monza', stemma: '🔴⚪', allenatore: 'Alessandro Nesta', valoreTotale: 90,
+                                stadio: 'U-Power Stadium', città: 'Monza' },
+                            { id: 17, nome: 'Empoli', stemma: '🔵⚪', allenatore: 'Roberto D\'Aversa', valoreTotale: 70,
+                                stadio: 'Carlo Castellani', città: 'Empoli' },
+                            { id: 18, nome: 'Venezia', stemma: '🟢🟠', allenatore: 'Eusebio Di Francesco',
+                                valoreTotale: 75, stadio: 'Pier Luigi Penzo', città: 'Venezia' },
+                            { id: 19, nome: 'Parma', stemma: '🟡🔵', allenatore: 'Fabio Pecchia', valoreTotale: 65,
+                                stadio: 'Ennio Tardini', città: 'Parma' },
+                            { id: 20, nome: 'Catanzaro', stemma: '🔴🟡', allenatore: 'Fabio Caserta', valoreTotale: 55,
+                                stadio: 'Nicola Ceravolo', città: 'Catanzaro' },
+                        ]
+                    },
+                    'Serie B': {
+                        id: 'serie-b',
+                        squadre: [
+                            { id: 101, nome: 'Palermo', stemma: '🟣⚫', allenatore: 'Alessio Dionisi', valoreTotale: 45,
+                                stadio: 'Renzo Barbera', città: 'Palermo' },
+                            { id: 102, nome: 'Bari', stemma: '🔴⚪', allenatore: 'Federico Giampaolo', valoreTotale: 40,
+                                stadio: 'San Nicola', città: 'Bari' },
+                            { id: 103, nome: 'Sampdoria', stemma: '🔵⚪🔴⚫', allenatore: 'Andrea Sottil', valoreTotale: 50,
+                                stadio: 'Luigi Ferraris', città: 'Genova' },
+                            { id: 104, nome: 'Modena', stemma: '🟡🔵', allenatore: 'Pierpaolo Bisoli', valoreTotale: 25,
+                                stadio: 'Alberto Braglia', città: 'Modena' },
+                            { id: 105, nome: 'Cremonese', stemma: '🔴⚪', allenatore: 'Eugenio Corini', valoreTotale: 30,
+                                stadio: 'Giovanni Zini', città: 'Cremona' },
+                            { id: 106, nome: 'Pisa', stemma: '🔵⚫', allenatore: 'Filippo Inzaghi', valoreTotale: 28,
+                                stadio: 'Arena Garibaldi', città: 'Pisa' },
+                            { id: 107, nome: 'Spezia', stemma: '⚫⚪', allenatore: 'Luca D\'Angelo', valoreTotale: 35,
+                                stadio: 'Alberto Picco', città: 'La Spezia' },
+                            { id: 108, nome: 'Cittadella', stemma: '🔴⚪', allenatore: 'Edoardo Gorini', valoreTotale: 20,
+                                stadio: 'Pier Cesare Tombolato', città: 'Cittadella' },
+                            { id: 109, nome: 'Ascoli', stemma: '⚫⚪', allenatore: 'Domenico Di Carlo', valoreTotale: 22,
+                                stadio: 'Del Duca', città: 'Ascoli Piceno' },
+                            { id: 110, nome: 'Reggiana', stemma: '🔴⚪', allenatore: 'William Viali', valoreTotale: 20,
+                                stadio: 'Mapei Stadium', città: 'Reggio Emilia' },
+                            { id: 111, nome: 'Brescia', stemma: '🔵⚪', allenatore: 'Rolando Maran', valoreTotale: 25,
+                                stadio: 'Mario Rigamonti', città: 'Brescia' },
+                            { id: 112, nome: 'Vicenza', stemma: '🔴⚪', allenatore: 'Stefano Vecchi', valoreTotale: 22,
+                                stadio: 'Romeo Menti', città: 'Vicenza' },
+                            { id: 113, nome: 'SPAL', stemma: '🟦⬜', allenatore: 'Leonardo Semplici', valoreTotale: 20,
+                                stadio: 'Paolo Mazza', città: 'Ferrara' },
+                            { id: 114, nome: 'Perugia', stemma: '🔴⚪', allenatore: 'Francesco Baldini', valoreTotale: 18,
+                                stadio: 'Renato Curi', città: 'Perugia' },
+                            { id: 115, nome: 'Ternana', stemma: '🟢🔴', allenatore: 'Roberto Breda', valoreTotale: 16,
+                                stadio: 'Libero Liberati', città: 'Terni' },
+                            { id: 116, nome: 'Cosenza', stemma: '🔴⚪', allenatore: 'Massimiliano Alvini',
+                                valoreTotale: 15, stadio: 'San Vito-Gigi Marulla', città: 'Cosenza' },
+                            { id: 117, nome: 'Frosinone', stemma: '🔵🟡', allenatore: 'Vincenzo Vivarini',
+                                valoreTotale: 20, stadio: 'Benito Stirpe', città: 'Frosinone' },
+                            { id: 118, nome: 'Südtirol', stemma: '🔴⚪', allenatore: 'Federico Valente', valoreTotale: 12,
+                                stadio: 'Druso', città: 'Bolzano' },
+                        ]
+                    },
+                    'Serie C (Girone A)': {
+                        id: 'serie-c-a',
+                        squadre: [
+                            { id: 201, nome: 'Padova', stemma: '🔴⚪', allenatore: 'Matteo Andreoletti',
+                                valoreTotale: 8, stadio: 'Euganeo', città: 'Padova' },
+                            { id: 202, nome: 'Vicenza', stemma: '🔴⚪', allenatore: 'Stefano Vecchi', valoreTotale: 7,
+                                stadio: 'Romeo Menti', città: 'Vicenza' },
+                            { id: 203, nome: 'Pro Vercelli', stemma: '⚫⚪', allenatore: 'Andrea Dossena',
+                                valoreTotale: 5, stadio: 'Silvio Piola', città: 'Vercelli' },
+                            { id: 204, nome: 'Novara', stemma: '🔵⚪', allenatore: 'Giacomo Gattuso', valoreTotale: 4,
+                                stadio: 'Silvio Piola', città: 'Novara' },
+                            { id: 205, nome: 'Pro Patria', stemma: '🔴⚪', allenatore: 'Riccardo Bonomi', valoreTotale: 4,
+                                stadio: 'Carlo Speroni', città: 'Busto Arsizio' },
+                            { id: 206, nome: 'Lecco', stemma: '🔵⚪', allenatore: 'Lorenzo D\'Anna', valoreTotale: 4,
+                                stadio: 'Rigamonti-Ceppi', città: 'Lecco' },
+                            { id: 207, nome: 'Pergolettese', stemma: '🟡🔵', allenatore: 'Giovanni Mussa', valoreTotale: 3,
+                                stadio: 'Giuseppe Voltini', città: 'Crema' },
+                            { id: 208, nome: 'Giana Erminio', stemma: '🔴⚪', allenatore: 'Andrea Chiappella',
+                                valoreTotale: 3, stadio: 'Città di Gorgonzola', città: 'Gorgonzola' },
+                            { id: 209, nome: 'Arzignano', stemma: '🟡🔵', allenatore: 'Gianluca Zattarin', valoreTotale: 3,
+                                stadio: 'Tommaso Dal Molin', città: 'Arzignano' },
+                            { id: 210, nome: 'AlbinoLeffe', stemma: '🔵⚪', allenatore: 'Gianluca Palumbo', valoreTotale: 3,
+                                stadio: 'Gianni Brera', città: 'Leffe' },
+                        ]
+                    },
+                    'Serie C (Girone B)': {
+                        id: 'serie-c-b',
+                        squadre: [
+                            { id: 301, nome: 'Cesena', stemma: '⚫⚪', allenatore: 'Michele Mignani', valoreTotale: 8,
+                                stadio: 'Dino Manuzzi', città: 'Cesena' },
+                            { id: 302, nome: 'Pescara', stemma: '🔵⚪', allenatore: 'Zdeněk Zeman', valoreTotale: 7,
+                                stadio: 'Adriatico', città: 'Pescara' },
+                            { id: 303, nome: 'Carrarese', stemma: '🔵⚪', allenatore: 'Antonio Calabro', valoreTotale: 6,
+                                stadio: 'Dei Marmi', città: 'Carrara' },
+                            { id: 304, nome: 'Vis Pesaro', stemma: '🟡🔴', allenatore: 'Roberto Stellone', valoreTotale: 5,
+                                stadio: 'Tonino Benelli', città: 'Pesaro' },
+                            { id: 305, nome: 'Olbia', stemma: '🟡⚪', allenatore: 'Max Canzi', valoreTotale: 4,
+                                stadio: 'Bruno Nespoli', città: 'Olbia' },
+                            { id: 306, nome: 'Recanatese', stemma: '🔵⚪', allenatore: 'Francesco Moriero', valoreTotale: 4,
+                                stadio: 'Tubaldi', città: 'Recanati' },
+                            { id: 307, nome: 'Fermana', stemma: '🟡🔵', allenatore: 'Andrea Bruniera', valoreTotale: 3,
+                                stadio: 'Bruno Recchioni', città: 'Fermo' },
+                            { id: 308, nome: 'Gubbio', stemma: '🔴🔵', allenatore: 'Piero Braglia', valoreTotale: 3,
+                                stadio: 'Pietro Barbetti', città: 'Gubbio' },
+                            { id: 309, nome: 'Sestri Levante', stemma: '🔴⚪', allenatore: 'Enrico Barillari',
+                                valoreTotale: 3, stadio: 'Giuseppe Sivori', città: 'Sestri Levante' },
+                            { id: 310, nome: 'Pontedera', stemma: '🔴⚪', allenatore: 'Ivan Maraia', valoreTotale: 3,
+                                stadio: 'Ettore Mannucci', città: 'Pontedera' },
+                        ]
+                    },
+                    'Serie C (Girone C)': {
+                        id: 'serie-c-c',
+                        squadre: [
+                            { id: 401, nome: 'Juve Stabia', stemma: '🔵⚪', allenatore: 'Guido Pagliuca', valoreTotale: 7,
+                                stadio: 'Romeo Menti', città: 'Castellammare di Stabia' },
+                            { id: 402, nome: 'Picerno', stemma: '🔴⚪', allenatore: 'Emilio Longo', valoreTotale: 6,
+                                stadio: 'Donato Curcio', città: 'Picerno' },
+                            { id: 403, nome: 'Audace Cerignola', stemma: '🟡🔵', allenatore: 'Gianluca Grassadonia',
+                                valoreTotale: 5, stadio: 'Domenico Monterisi', città: 'Cerignola' },
+                            { id: 404, nome: 'Giugliano', stemma: '🔵⚪', allenatore: 'Raffaele Di Napoli', valoreTotale: 5,
+                                stadio: 'Alberto De Cristofaro', città: 'Giugliano' },
+                            { id: 405, nome: 'Potenza', stemma: '🔴🔵', allenatore: 'Pietro Parente', valoreTotale: 4,
+                                stadio: 'Alfredo Viviani', città: 'Potenza' },
+                            { id: 406, nome: 'Monopoli', stemma: '🟡🔵', allenatore: 'Alberto Colombo', valoreTotale: 4,
+                                stadio: 'Vito Simone Veneziani', città: 'Monopoli' },
+                            { id: 407, nome: 'Sorrento', stemma: '🔴⚪', allenatore: 'Fabio Fusco', valoreTotale: 3,
+                                stadio: 'Italia', città: 'Sorrento' },
+                            { id: 408, nome: 'Melfi', stemma: '🟡🔴', allenatore: 'Salvatore Iacolino', valoreTotale: 3,
+                                stadio: 'Arturo Valerio', città: 'Melfi' },
+                            { id: 409, nome: 'Brindisi', stemma: '🔵⚪', allenatore: 'Daniele Cinque', valoreTotale: 3,
+                                stadio: 'Franco Fanuzzi', città: 'Brindisi' },
+                            { id: 410, nome: 'Crotone', stemma: '🔴🔵', allenatore: 'Emilio Longo', valoreTotale: 3,
+                                stadio: 'Ezio Scida', città: 'Crotone' },
+                        ]
+                    },
+                    'Serie D': {
+                        id: 'serie-d',
+                        squadre: [
+                            { id: 501, nome: 'Piacenza', stemma: '🔴⚪', allenatore: 'Stefano Arrigoni', valoreTotale: 2,
+                                stadio: 'Leonardo Garilli', città: 'Piacenza' },
+                            { id: 502, nome: 'Bassano Virtus', stemma: '🔴⚪', allenatore: 'Paolo Bertani',
+                                valoreTotale: 2, stadio: 'Euganeo', città: 'Bassano del Grappa' },
+                            { id: 503, nome: 'Campobasso', stemma: '🔴⚪', allenatore: 'Francesco Turri', valoreTotale: 2,
+                                stadio: 'Antonio Molinari', città: 'Campobasso' },
+                            { id: 504, nome: 'Imolese', stemma: '🔴⚪', allenatore: 'Luca Tosi', valoreTotale: 2,
+                                stadio: 'Romeo Galli', città: 'Imola' },
+                            { id: 505, nome: 'Triestina', stemma: '🔴⚪', allenatore: 'Attilio Tesser', valoreTotale: 2,
+                                stadio: 'Nereo Rocco', città: 'Trieste' },
+                            { id: 506, nome: 'Ravenna', stemma: '🔴⚪', allenatore: 'Massimo Gadda', valoreTotale: 2,
+                                stadio: 'Bruno Benelli', città: 'Ravenna' },
+                            { id: 507, nome: 'Mantova', stemma: '🔴⚪', allenatore: 'Davide Possanzini', valoreTotale: 2,
+                                stadio: 'Danilo Martelli', città: 'Mantova' },
+                            { id: 508, nome: 'Calcio Lecco 1912', stemma: '🔵⚪', allenatore: 'Lorenzo D\'Anna',
+                                valoreTotale: 2, stadio: 'Rigamonti-Ceppi', città: 'Lecco' },
+                            { id: 509, nome: 'Viterbese', stemma: '🔴⚪', allenatore: 'Giacomo Filippi', valoreTotale: 2,
+                                stadio: 'Enrico Rocchi', città: 'Viterbo' },
+                            { id: 510, nome: 'Siena', stemma: '🔴⚪', allenatore: 'Lamberto Magrini', valoreTotale: 2,
+                                stadio: 'Artemio Franchi', città: 'Siena' },
+                            { id: 511, nome: 'Lucchese', stemma: '🔴⚪', allenatore: 'Giorgio Gorgone', valoreTotale: 2,
+                                stadio: 'Porta Elisa', città: 'Lucca' },
+                            { id: 512, nome: 'Grosseto', stemma: '🔴⚪', allenatore: 'Andrea Lazzini', valoreTotale: 2,
+                                stadio: 'Carlo Zecchini', città: 'Grosseto' },
+                            { id: 513, nome: 'Foggia', stemma: '🔴⚪', allenatore: 'Massimiliano Sessolo',
+                                valoreTotale: 2, stadio: 'Pino Zaccheria', città: 'Foggia' },
+                            { id: 514, nome: 'Juventus Next Gen', stemma: '⚫⚪', allenatore: 'Massimo Brambilla',
+                                valoreTotale: 2, stadio: 'Mapei Stadium', città: 'Reggio Emilia' },
+                            { id: 515, nome: 'Atalanta U23', stemma: '🔵⚫', allenatore: 'Francesco Modesto',
+                                valoreTotale: 2, stadio: 'Caravaggio', città: 'Bergamo' },
+                            { id: 516, nome: 'Milan Futuro', stemma: '🔴⚫', allenatore: 'Daniele Bonera',
+                                valoreTotale: 2, stadio: 'Pulcini', città: 'Milano' },
+                            { id: 517, nome: 'Inter U23', stemma: '🔵⚫', allenatore: 'Cristian Chivu', valoreTotale: 2,
+                                stadio: 'Breda', città: 'Milano' },
+                            { id: 518, nome: 'Roma U23', stemma: '🔴🟡', allenatore: 'Alberto De Rossi', valoreTotale: 2,
+                                stadio: 'Tre Fontane', città: 'Roma' },
+                            { id: 519, nome: 'Napoli U23', stemma: '🔵⚪', allenatore: 'Lorenzo Insigne',
+                                valoreTotale: 2, stadio: 'Campania', città: 'Napoli' },
+                            { id: 520, nome: 'Lazio U23', stemma: '🔵⚪', allenatore: 'Mauro Bianchi', valoreTotale: 2,
+                                stadio: 'Fersini', città: 'Roma' },
+                        ]
+                    }
+                }
+            }
+        };
+
+        // ============================================================
+        // DATABASE GIOCATORI REALI (17+ per squadra) - SERIE A
+        // ============================================================
+
+        const GIOCATORI_REALI = {
+            'Inter': [
+                { nome: 'Yann', cognome: 'Sommer', ruolo: 'Portiere', ovr: 87, eta: 36, altezza: 183, peso: 82,
+                    piede: 'Destro', nazionalita: 'Svizzera', foto: '🧤', posizione: 'PT',
+                    storico: [{ anno: 2023, da: 'Bayern Monaco', a: 'Inter', costo: 6 }, { anno: 2020, da: 'Borussia M.',
+                            a: 'Bayern Monaco', costo: 8 }] },
+                { nome: 'Josep', cognome: 'Martínez', ruolo: 'Portiere', ovr: 82, eta: 27, altezza: 191, peso: 85,
+                    piede: 'Destro', nazionalita: 'Spagna', foto: '🧤', posizione: 'PT',
+                    storico: [{ anno: 2024, da: 'Genoa', a: 'Inter', costo: 5 }] },
+                { nome: 'Federico', cognome: 'Dimarco', ruolo: 'Difensore', ovr: 88, eta: 27, altezza: 175, peso: 72,
+                    piede: 'Sinistro', nazionalita: 'Italia', foto: '🛡️', posizione: 'TS',
+                    storico: [{ anno: 2022, da: 'Verona', a: 'Inter', costo: 8 }, { anno: 2020, da: 'Inter', a: 'Verona',
+                        costo: 2 }] },
+                { nome: 'Manuel', cognome: 'Akanji', ruolo: 'Difensore', ovr: 86, eta: 30, altezza: 187, peso: 85,
+                    piede: 'Destro', nazionalita: 'Svizzera', foto: '🛡️', posizione: 'DC',
+                    storico: [{ anno: 2025, da: 'Manchester City', a: 'Inter', costo: 40 }, { anno: 2022, da: 'Dortmund',
+                            a: 'Manchester City', costo: 17 }] },
+                { nome: 'John', cognome: 'Stones', ruolo: 'Difensore', ovr: 87, eta: 31, altezza: 188, peso: 84,
+                    piede: 'Destro', nazionalita: 'Inghilterra', foto: '🛡️', posizione: 'DC',
+                    storico: [{ anno: 2025, da: 'Manchester City', a: 'Inter', costo: 45 }, { anno: 2016, da: 'Everton',
+                            a: 'Manchester City', costo: 55 }] },
+                { nome: 'Denzel', cognome: 'Dumfries', ruolo: 'Difensore', ovr: 85, eta: 29, altezza: 188, peso: 80,
+                    piede: 'Destro', nazionalita: 'Olanda', foto: '🛡️', posizione: 'TD',
+                    storico: [{ anno: 2021, da: 'PSV', a: 'Inter', costo: 15 }] },
+                { nome: 'Alessandro', cognome: 'Bastoni', ruolo: 'Difensore', ovr: 87, eta: 26, altezza: 190, peso: 84,
+                    piede: 'Sinistro', nazionalita: 'Italia', foto: '🛡️', posizione: 'DC',
+                    storico: [{ anno: 2019, da: 'Atalanta', a: 'Inter', costo: 25 }] },
+                { nome: 'Benjamin', cognome: 'Pavard', ruolo: 'Difensore', ovr: 85, eta: 29, altezza: 186, peso: 80,
+                    piede: 'Destro', nazionalita: 'Francia', foto: '🛡️', posizione: 'TD',
+                    storico: [{ anno: 2025, da: 'Bayern Monaco', a: 'Inter', costo: 35 }, { anno: 2019, da: 'Stoccarda',
+                            a: 'Bayern Monaco', costo: 35 }] },
+                { nome: 'Yann', cognome: 'Bisseck', ruolo: 'Difensore', ovr: 82, eta: 24, altezza: 196, peso: 88,
+                    piede: 'Destro', nazionalita: 'Danimarca', foto: '🛡️', posizione: 'DC',
+                    storico: [{ anno: 2023, da: 'Aarhus', a: 'Inter', costo: 12 }] },
+                { nome: 'Nicolò', cognome: 'Barella', ruolo: 'Centrocampista', ovr: 90, eta: 28, altezza: 172, peso: 70,
+                    piede: 'Destro', nazionalita: 'Italia', foto: '⚡', posizione: 'CDC',
+                    storico: [{ anno: 2019, da: 'Cagliari', a: 'Inter', costo: 25 }] },
+                { nome: 'Hakan', cognome: 'Çalhanoğlu', ruolo: 'Centrocampista', ovr: 88, eta: 31, altezza: 178, peso: 74,
+                    piede: 'Destro', nazionalita: 'Turchia', foto: '⚡', posizione: 'CC',
+                    storico: [{ anno: 2021, da: 'Milan', a: 'Inter', costo: 0 }] },
+                { nome: 'Petar', cognome: 'Sucic', ruolo: 'Centrocampista', ovr: 84, eta: 21, altezza: 185, peso: 78,
+                    piede: 'Destro', nazionalita: 'Croazia', foto: '⚡', posizione: 'CDC',
+                    storico: [{ anno: 2025, da: 'Dinamo Zagabria', a: 'Inter', costo: 30 }] },
+                { nome: 'Kristjan', cognome: 'Asllani', ruolo: 'Centrocampista', ovr: 82, eta: 23, altezza: 183, peso: 76,
+                    piede: 'Destro', nazionalita: 'Albania', foto: '⚡', posizione: 'CC',
+                    storico: [{ anno: 2022, da: 'Empoli', a: 'Inter', costo: 14 }] },
+                { nome: 'Lautaro', cognome: 'Martínez', ruolo: 'Attaccante', ovr: 91, eta: 27, altezza: 174, peso: 76,
+                    piede: 'Destro', nazionalita: 'Argentina', foto: '⚽', posizione: 'AD',
+                    storico: [{ anno: 2018, da: 'Racing Club', a: 'Inter', costo: 25 }] },
+                { nome: 'Marcus', cognome: 'Thuram', ruolo: 'Attaccante', ovr: 88, eta: 27, altezza: 192, peso: 85,
+                    piede: 'Destro', nazionalita: 'Francia', foto: '⚽', posizione: 'AC',
+                    storico: [{ anno: 2023, da: 'Borussia M.', a: 'Inter', costo: 0 }] },
+                { nome: 'Moussa', cognome: 'Diouf', ruolo: 'Attaccante', ovr: 82, eta: 23, altezza: 185, peso: 78,
+                    piede: 'Destro', nazionalita: 'Francia', foto: '⚽', posizione: 'AD',
+                    storico: [{ anno: 2024, da: 'Troyes', a: 'Inter', costo: 25 }] },
+                { nome: 'Matteo', cognome: 'Lavelli', ruolo: 'Attaccante', ovr: 78, eta: 20, altezza: 180, peso: 74,
+                    piede: 'Destro', nazionalita: 'Italia', foto: '⭐', posizione: 'AC',
+                    storico: [{ anno: 2024, da: 'Inter U23', a: 'Inter', costo: 0 }] },
+                { nome: 'Marko', cognome: 'Arnautović', ruolo: 'Attaccante', ovr: 82, eta: 36, altezza: 192, peso: 88,
+                    piede: 'Destro', nazionalita: 'Austria', foto: '⚽', posizione: 'AC',
+                    storico: [{ anno: 2023, da: 'Bologna', a: 'Inter', costo: 10 }, { anno: 2021, da: 'Stoke City',
+                            a: 'Bologna', costo: 5 }] },
+            ],
+            'Milan': [
+                { nome: 'Mike', cognome: 'Maignan', ruolo: 'Portiere', ovr: 89, eta: 29, altezza: 191, peso: 85,
+                    piede: 'Destro', nazionalita: 'Francia', foto: '🧤', posizione: 'PT',
+                    storico: [{ anno: 2021, da: 'Lille', a: 'Milan', costo: 15 }] },
+                { nome: 'Pietro', cognome: 'Terracciano', ruolo: 'Portiere', ovr: 76, eta: 22, altezza: 188, peso: 82,
+                    piede: 'Destro', nazionalita: 'Italia', foto: '🧤', posizione: 'PT',
+                    storico: [{ anno: 2024, da: 'Hellas Verona', a: 'Milan', costo: 5 }] },
+                { nome: 'Fikayo', cognome: 'Tomori', ruolo: 'Difensore', ovr: 86, eta: 27, altezza: 185, peso: 78,
+                    piede: 'Destro', nazionalita: 'Inghilterra', foto: '🛡️', posizione: 'DC',
+                    storico: [{ anno: 2021, da: 'Chelsea', a: 'Milan', costo: 28 }] },
+                { nome: 'Matteo', cognome: 'Gabbia', ruolo: 'Difensore', ovr: 80, eta: 25, altezza: 185, peso: 78,
+                    piede: 'Destro', nazionalita: 'Italia', foto: '🛡️', posizione: 'DC',
+                    storico: [{ anno: 2020, da: 'Milan U23', a: 'Milan', costo: 0 }] },
+                { nome: 'Strahinja', cognome: 'Pavlovic', ruolo: 'Difensore', ovr: 82, eta: 24, altezza: 194, peso: 85,
+                    piede: 'Sinistro', nazionalita: 'Serbia', foto: '🛡️', posizione: 'DC',
+                    storico: [{ anno: 2025, da: 'RB Salzburg', a: 'Milan', costo: 25 }] },
+                { nome: 'Pervis', cognome: 'Estupiñán', ruolo: 'Difensore', ovr: 84, eta: 27, altezza: 175, peso: 72,
+                    piede: 'Sinistro', nazionalita: 'Ecuador', foto: '🛡️', posizione: 'TS',
+                    storico: [{ anno: 2025, da: 'Brighton', a: 'Milan', costo: 30 }] },
+                { nome: 'Luka', cognome: 'Modric', ruolo: 'Centrocampista', ovr: 88, eta: 39, altezza: 172, peso: 68,
+                    piede: 'Destro', nazionalita: 'Croazia', foto: '⚡', posizione: 'CC',
+                    storico: [{ anno: 2025, da: 'Real Madrid', a: 'Milan', costo: 20 }, { anno: 2012, da: 'Tottenham',
+                            a: 'Real Madrid', costo: 35 }] },
+                { nome: 'Samuele', cognome: 'Ricci', ruolo: 'Centrocampista', ovr: 84, eta: 23, altezza: 178, peso: 74,
+                    piede: 'Destro', nazionalita: 'Italia', foto: '⚡', posizione: 'CDC',
+                    storico: [{ anno: 2025, da: 'Torino', a: 'Milan', costo: 35 }] },
+                { nome: 'Youssouf', cognome: 'Fofana', ruolo: 'Centrocampista', ovr: 85, eta: 25, altezza: 185, peso: 78,
+                    piede: 'Destro', nazionalita: 'Francia', foto: '⚡', posizione: 'CDC',
+                    storico: [{ anno: 2025, da: 'Monaco', a: 'Milan', costo: 30 }] },
+                { nome: 'Adrien', cognome: 'Rabiot', ruolo: 'Centrocampista', ovr: 86, eta: 30, altezza: 188, peso: 82,
+                    piede: 'Sinistro', nazionalita: 'Francia', foto: '⚡', posizione: 'CC',
+                    storico: [{ anno: 2025, da: 'Juventus', a: 'Milan', costo: 38 }] },
+                { nome: 'Santi', cognome: 'Giménez', ruolo: 'Attaccante', ovr: 86, eta: 24, altezza: 182, peso: 76,
+                    piede: 'Destro', nazionalita: 'Messico', foto: '⚽', posizione: 'AC',
+                    storico: [{ anno: 2025, da: 'Feyenoord', a: 'Milan', costo: 50 }] },
+                { nome: 'Rafael', cognome: 'Leão', ruolo: 'Attaccante', ovr: 89, eta: 25, altezza: 188, peso: 80,
+                    piede: 'Destro', nazionalita: 'Portogallo', foto: '⚽', posizione: 'AD',
+                    storico: [{ anno: 2019, da: 'Lille', a: 'Milan', costo: 35 }] },
+                { nome: 'Christian', cognome: 'Pulisic', ruolo: 'Attaccante', ovr: 86, eta: 26, altezza: 177, peso: 74,
+                    piede: 'Destro', nazionalita: 'USA', foto: '⚽', posizione: 'AD',
+                    storico: [{ anno: 2023, da: 'Chelsea', a: 'Milan', costo: 20 }] },
+                { nome: 'Christopher', cognome: 'Nkunku', ruolo: 'Attaccante', ovr: 87, eta: 27, altezza: 175, peso: 72,
+                    piede: 'Destro', nazionalita: 'Francia', foto: '⚽', posizione: 'AC',
+                    storico: [{ anno: 2025, da: 'Chelsea', a: 'Milan', costo: 45 }] },
+                { nome: 'Niclas', cognome: 'Fullkrug', ruolo: 'Attaccante', ovr: 84, eta: 32, altezza: 190, peso: 85,
+                    piede: 'Destro', nazionalita: 'Germania', foto: '⚽', posizione: 'AC',
+                    storico: [{ anno: 2025, da: 'West Ham', a: 'Milan', costo: 25 }] },
+                { nome: 'Alexis', cognome: 'Saelemaekers', ruolo: 'Attaccante', ovr: 82, eta: 25, altezza: 180, peso: 74,
+                    piede: 'Destro', nazionalita: 'Belgio', foto: '⚽', posizione: 'AD',
+                    storico: [{ anno: 2020, da: 'Anderlecht', a: 'Milan', costo: 5 }] },
+                { nome: 'Mikel', cognome: 'Balentien', ruolo: 'Attaccante', ovr: 72, eta: 20, altezza: 178, peso: 74,
+                    piede: 'Destro', nazionalita: 'Italia', foto: '⭐', posizione: 'AD',
+                    storico: [{ anno: 2024, da: 'Milan U23', a: 'Milan', costo: 0 }] },
+            ],
+            'Juventus': [
+                { nome: 'Wojciech', cognome: 'Szczęsny', ruolo: 'Portiere', ovr: 86, eta: 35, altezza: 195, peso: 88,
+                    piede: 'Destro', nazionalita: 'Polonia', foto: '🧤', posizione: 'PT',
+                    storico: [{ anno: 2017, da: 'Arsenal', a: 'Juventus', costo: 12 }] },
+                { nome: 'Mattia', cognome: 'Perin', ruolo: 'Portiere', ovr: 83, eta: 32, altezza: 188, peso: 82,
+                    piede: 'Destro', nazionalita: 'Italia', foto: '🧤', posizione: 'PT',
+                    storico: [{ anno: 2021, da: 'Genoa', a: 'Juventus', costo: 10 }] },
+                { nome: 'Gleison', cognome: 'Bremer', ruolo: 'Difensore', ovr: 87, eta: 28, altezza: 188, peso: 84,
+                    piede: 'Destro', nazionalita: 'Brasile', foto: '🛡️', posizione: 'DC',
+                    storico: [{ anno: 2022, da: 'Torino', a: 'Juventus', costo: 40 }] },
+                { nome: 'Federico', cognome: 'Gatti', ruolo: 'Difensore', ovr: 84, eta: 26, altezza: 190, peso: 85,
+                    piede: 'Destro', nazionalita: 'Italia', foto: '🛡️', posizione: 'DC',
+                    storico: [{ anno: 2022, da: 'Frosinone', a: 'Juventus', costo: 12 }] },
+                { nome: 'Andrea', cognome: 'Cambiaso', ruolo: 'Difensore', ovr: 85, eta: 24, altezza: 182, peso: 76,
+                    piede: 'Destro', nazionalita: 'Italia', foto: '🛡️', posizione: 'TD',
+                    storico: [{ anno: 2023, da: 'Genoa', a: 'Juventus', costo: 15 }] },
+                { nome: 'Nicolò', cognome: 'Fagioli', ruolo: 'Centrocampista', ovr: 84, eta: 24, altezza: 178, peso: 74,
+                    piede: 'Destro', nazionalita: 'Italia', foto: '⚡', posizione: 'CC',
+                    storico: [{ anno: 2022, da: 'Juventus U23', a: 'Juventus', costo: 0 }] },
+                { nome: 'Manuel', cognome: 'Locatelli', ruolo: 'Centrocampista', ovr: 86, eta: 27, altezza: 186, peso: 80,
+                    piede: 'Destro', nazionalita: 'Italia', foto: '⚡', posizione: 'CDC',
+                    storico: [{ anno: 2021, da: 'Sassuolo', a: 'Juventus', costo: 35 }] },
+                { nome: 'Weston', cognome: 'McKennie', ruolo: 'Centrocampista', ovr: 83, eta: 26, altezza: 185, peso: 78,
+                    piede: 'Destro', nazionalita: 'USA', foto: '⚡', posizione: 'CC',
+                    storico: [{ anno: 2020, da: 'Schalke 04', a: 'Juventus', costo: 18 }] },
+                { nome: 'Kenan', cognome: 'Yıldız', ruolo: 'Attaccante', ovr: 82, eta: 19, altezza: 183, peso: 76,
+                    piede: 'Destro', nazionalita: 'Turchia', foto: '⭐', posizione: 'AD',
+                    storico: [{ anno: 2023, da: 'Bayern U19', a: 'Juventus', costo: 0 }] },
+                { nome: 'Federico', cognome: 'Chiesa', ruolo: 'Attaccante', ovr: 88, eta: 27, altezza: 175, peso: 72,
+                    piede: 'Destro', nazionalita: 'Italia', foto: '⚽', posizione: 'AD',
+                    storico: [{ anno: 2020, da: 'Fiorentina', a: 'Juventus', costo: 50 }] },
+                { nome: 'Dušan', cognome: 'Vlahović', ruolo: 'Attaccante', ovr: 88, eta: 25, altezza: 190, peso: 85,
+                    piede: 'Sinistro', nazionalita: 'Serbia', foto: '⚽', posizione: 'AC',
+                    storico: [{ anno: 2022, da: 'Fiorentina', a: 'Juventus', costo: 65 }] },
+                { nome: 'Randal', cognome: 'Kolo Muani', ruolo: 'Attaccante', ovr: 86, eta: 26, altezza: 187, peso: 82,
+                    piede: 'Destro', nazionalita: 'Francia', foto: '⚽', posizione: 'AC',
+                    storico: [{ anno: 2025, da: 'PSG', a: 'Juventus', costo: 50 }] },
+                { nome: 'Joshua', cognome: 'Zirkzee', ruolo: 'Attaccante', ovr: 84, eta: 23, altezza: 193, peso: 86,
+                    piede: 'Destro', nazionalita: 'Olanda', foto: '⚽', posizione: 'AC',
+                    storico: [{ anno: 2025, da: 'Manchester Utd', a: 'Juventus', costo: 40 }] },
+                { nome: 'Samuel', cognome: 'Iling-Junior', ruolo: 'Attaccante', ovr: 80, eta: 21, altezza: 182, peso: 76,
+                    piede: 'Sinistro', nazionalita: 'Inghilterra', foto: '⭐', posizione: 'AD',
+                    storico: [{ anno: 2022, da: 'Chelsea U23', a: 'Juventus', costo: 0 }] },
+                { nome: 'Fabio', cognome: 'Miretti', ruolo: 'Centrocampista', ovr: 80, eta: 21, altezza: 178, peso: 74,
+                    piede: 'Destro', nazionalita: 'Italia', foto: '⭐', posizione: 'CC',
+                    storico: [{ anno: 2022, da: 'Juventus U23', a: 'Juventus', costo: 0 }] },
+                { nome: 'Danilo', cognome: 'Luiz', ruolo: 'Difensore', ovr: 84, eta: 33, altezza: 185, peso: 80,
+                    piede: 'Destro', nazionalita: 'Brasile', foto: '🛡️', posizione: 'DC',
+                    storico: [{ anno: 2019, da: 'Manchester City', a: 'Juventus', costo: 35 }] },
+                { nome: 'Juan', cognome: 'Cabal', ruolo: 'Difensore', ovr: 80, eta: 23, altezza: 186, peso: 80,
+                    piede: 'Sinistro', nazionalita: 'Colombia', foto: '🛡️', posizione: 'TS',
+                    storico: [{ anno: 2025, da: 'Atletico Nacional', a: 'Juventus', costo: 15 }] },
+            ]
+        };
+
+        // ============================================================
+        // STATO DEL GIOCO
+        // ============================================================
+
+        let gameState = {
+            squadraSelezionata: 1,
+            giornata: 0,
+            classifica: {},
+            partite: [],
+            giocatori: [],
+            totaleGiornate: 38,
+            capocannoniere: { nome: '', gol: 0 },
+            assistman: { nome: '', assist: 0 }
+        };
+
+        let SQUADRE = [];
+        let TUTTI_GIOCATORI = {};
+
+        // ============================================================
+        // INIZIALIZZAZIONE
+        // ============================================================
+
+        function initSquadre() {
+            SQUADRE = [];
+            for (const nazione in CAMPIONATI) {
+                for (const lega in CAMPIONATI[nazione].leghe) {
+                    SQUADRE.push(...CAMPIONATI[nazione].leghe[lega].squadre);
+                }
+            }
+        }
+
+        function initClassifica() {
+            const c = {};
+            for (const squadra of SQUADRE) {
+                c[squadra.id] = {
+                    nome: squadra.nome,
+                    partite: 0,
+                    vittorie: 0,
+                    pareggi: 0,
+                    sconfitte: 0,
+                    golFatti: 0,
+                    golSubiti: 0,
+                    punti: 0,
+                };
+            }
+            return c;
+        }
+
+        function initGiocatori() {
+            const giocatori = [];
+            let id = 1;
+            for (const squadra of SQUADRE) {
+                const lista = GIOCATORI_REALI[squadra.nome] || [];
+                if (lista.length === 0) {
+                    // Genera giocatori fittizi per le squadre minori
+                    for (let i = 0; i < 17; i++) {
+                        const ruoli = ['Portiere', 'Difensore', 'Centrocampista', 'Attaccante'];
+                        const ruolo = ruoli[i % 4];
+                        const ovr = 60 + Math.floor(Math.random() * 20);
+                        giocatori.push({
+                            id: id++,
+                            nome: ['Marco', 'Luca', 'Giuseppe', 'Francesco', 'Alessandro', 'Matteo', 'Andrea', 'Stefano',
+                                'Simone', 'Michele'
+                            ][i % 10],
+                            cognome: ['Rossi', 'Bianchi', 'Ferrari', 'Romani', 'Greco', 'Galluzzo', 'Leone', 'Martini',
+                                'Verdi', 'Gialli'
+                            ][i % 10],
+                            ruolo: ruolo,
+                            ovr: ovr,
+                            eta: 18 + Math.floor(Math.random() * 15),
+                            squadra_id: squadra.id,
+                            gol: 0,
+                            assist: 0,
+                            minuti: 0,
+                            golStagione: 0,
+                            assistStagione: 0,
+                            altezza: 170 + Math.floor(Math.random() * 25),
+                            peso: 65 + Math.floor(Math.random() * 20),
+                            piede: ['Destro', 'Sinistro', 'Ambidestro'][Math.floor(Math.random() * 3)],
+                            nazionalita: 'Italia',
+                            foto: ['🧤', '🛡️', '⚡', '⚽'][i % 4],
+                            posizione: ['PT', 'DC', 'CC', 'AC'][i % 4],
+                            storico: [],
+                            tiro: Math.round(ovr * (0.5 + Math.random() * 0.5)),
+                            difesa: Math.round(ovr * (0.4 + Math.random() * 0.6)),
+                            velocita: Math.round(ovr * (0.5 + Math.random() * 0.5)),
+                            fisico: Math.round(ovr * (0.4 + Math.random() * 0.6)),
+                            tecnica: Math.round(ovr * (0.5 + Math.random() * 0.5)),
+                            intelligenza: Math.round(ovr * (0.4 + Math.random() * 0.6)),
+                        });
+                    }
+                } else {
+                    for (const data of lista) {
+                        giocatori.push({
+                            id: id++,
+                            nome: data.nome,
+                            cognome: data.cognome,
+                            ruolo: data.ruolo,
+                            ovr: data.ovr,
+                            eta: data.eta,
+                            squadra_id: squadra.id,
+                            gol: 0,
+                            assist: 0,
+                            minuti: 0,
+                            golStagione: 0,
+                            assistStagione: 0,
+                            altezza: data.altezza || 175,
+                            peso: data.peso || 75,
+                            piede: data.piede || 'Destro',
+                            nazionalita: data.nazionalita || 'Italia',
+                            foto: data.foto || '⚽',
+                            posizione: data.posizione || 'CC',
+                            storico: data.storico || [],
+                            tiro: Math.round(data.ovr * (0.5 + Math.random() * 0.5)),
+                            difesa: Math.round(data.ovr * (0.4 + Math.random() * 0.6)),
+                            velocita: Math.round(data.ovr * (0.5 + Math.random() * 0.5)),
+                            fisico: Math.round(data.ovr * (0.4 + Math.random() * 0.6)),
+                            tecnica: Math.round(data.ovr * (0.5 + Math.random() * 0.5)),
+                            intelligenza: Math.round(data.ovr * (0.4 + Math.random() * 0.6)),
+                        });
+                    }
+                }
+            }
+            return giocatori;
+        }
+
+        function resetGame() {
+            gameState.giornata = 0;
+            gameState.classifica = initClassifica();
+            gameState.partite = [];
+            gameState.giocatori = initGiocatori();
+            gameState.capocannoniere = { nome: '', gol: 0 };
+            gameState.assistman = { nome: '', assist: 0 };
+            aggiornaUI();
+            mostraMessaggio('🔄 Gioco resettato! Inizia una nuova stagione!', '#2a3a6e');
+        }
+
+        // ============================================================
+        // FUNZIONI UTILITÀ
+        // ============================================================
+
+        function getSquadra(id) {
+            return SQUADRE.find(s => s.id === id);
+        }
+
+        function getGiocatoriSquadra(id) {
+            return gameState.giocatori.filter(g => g.squadra_id === id);
+        }
+
+        function calcolaForza(id) {
+            const giocatori = getGiocatoriSquadra(id);
+            if (giocatori.length === 0) return 50;
+            giocatori.sort((a, b) => b.ovr - a.ovr);
+            const top = giocatori.slice(0, 11);
+            const sum = top.reduce((acc, g) => acc + g.ovr, 0);
+            return Math.round(sum / top.length);
+        }
+
+        function getClassificaArray() {
+            const arr = Object.values(gameState.classifica);
+            arr.sort((a, b) => {
+                if (b.punti !== a.punti) return b.punti - a.punti;
+                return (b.golFatti - b.golSubiti) - (a.golFatti - a.golSubiti);
+            });
+            return arr;
+        }
+
+        // ============================================================
+        // SIMULAZIONE
+        // ============================================================
+
+        function simulaGiornata() {
+            if (gameState.giornata >= gameState.totaleGiornate) {
+                mostraMessaggio('🏆 Stagione completata! Premi Reset per ricominciare.', '#ff6b6b');
+                return;
+            }
+
+            gameState.giornata++;
+            const squadreIds = SQUADRE.map(s => s.id);
+            const mischiate = [...squadreIds].sort(() => Math.random() - 0.5);
+            const risultati = [];
+
+            for (let i = 0; i < mischiate.length; i += 2) {
+                if (i + 1 >= mischiate.length) break;
+                const casa = mischiate[i];
+                const ospite = mischiate[i + 1];
+
+                const fCasa = calcolaForza(casa);
+                const fOspite = calcolaForza(ospite);
+
+                const attesiCasa = Math.max(0, (fCasa / 100) * 2.5 - (fOspite / 100) * 1.2) * 1.1;
+                const attesiOspite = Math.max(0, (fOspite / 100) * 2.5 - (fCasa / 100) * 1.2);
+
+                let gCasa = Math.round(attesiCasa + (Math.random() - 0.5) * 1.5);
+                let gOspite = Math.round(attesiOspite + (Math.random() - 0.5) * 1.5);
+                gCasa = Math.max(0, gCasa);
+                gOspite = Math.max(0, gOspite);
+
+                // Aggiorna classifica
+                const c = gameState.classifica;
+                if (c[casa]) {
+                    c[casa].partite++;
+                    c[casa].golFatti += gCasa;
+                    c[casa].golSubiti += gOspite;
+                    if (gCasa > gOspite) { c[casa].vittorie++;
+                        c[casa].punti += 3; } else if (gCasa === gOspite) { c[casa].pareggi++;
+                        c[casa].punti += 1; } else { c[casa].sconfitte++; }
+                }
+                if (c[ospite]) {
+                    c[ospite].partite++;
+                    c[ospite].golFatti += gOspite;
+                    c[ospite].golSubiti += gCasa;
+                    if (gOspite > gCasa) { c[ospite].vittorie++;
+                        c[ospite].punti += 3; } else if (gOspite === gCasa) { c[ospite].pareggi++;
+                        c[ospite].punti += 1; } else { c[ospite].sconfitte++; }
+                }
+
+                // Statistiche giocatori
+                for (const id of [casa, ospite]) {
+                    const gol = id === casa ? gCasa : gOspite;
+                    const giocatori = getGiocatoriSquadra(id);
+                    for (const g of giocatori) {
+                        g.minuti = (g.minuti || 0) + 90;
+                        if (Math.random() < 0.15 && gol > 0) {
+                            g.gol = (g.gol || 0) + 1;
+                            g.golStagione = (g.golStagione || 0) + 1;
+                        }
+                        if (Math.random() < 0.12 && gol > 1) {
+                            g.assist = (g.assist || 0) + 1;
+                            g.assistStagione = (g.assistStagione || 0) + 1;
+                        }
+                    }
+                }
+
+                risultati.push({
+                    giornata: gameState.giornata,
+                    squadra_casa: casa,
+                    squadra_ospite: ospite,
+                    gol_casa: gCasa,
+                    gol_ospite: gOspite,
+                });
+            }
+
+            gameState.partite = [...gameState.partite, ...risultati];
+
+            // Calcola capocannoniere
+            aggiornaPremi();
+            aggiornaUI();
+            mostraMessaggio(`📊 Giornata ${gameState.giornata} completata! ${risultati.length} partite giocate.`,
+            '#00d2ff');
+        }
+
+        function simulaStagione() {
+            if (gameState.giornata >= gameState.totaleGiornate) {
+                mostraMessaggio('🏆 Stagione già completata! Premi Reset per ricominciare.', '#ff6b6b');
+                return;
+            }
+            const rimanenti = gameState.totaleGiornate - gameState.giornata;
+            for (let i = 0; i < rimanenti; i++) {
+                simulaGiornata();
+            }
+            const campione = getClassificaArray()[0]?.nome || '?';
+            mostraMessaggio(`🏆 STAGIONE COMPLETATA! Campione: ${campione} 🏆`, '#ffd700');
+        }
+
+        function aggiornaPremi() {
+            let maxGol = 0;
+            let maxAssist = 0;
+            let capo = '';
+            let assistMan = '';
+            for (const g of gameState.giocatori) {
+                if ((g.golStagione || 0) > maxGol) {
+                    maxGol = g.golStagione || 0;
+                    capo = `${g.nome} ${g.cognome}`;
+                }
+                if ((g.assistStagione || 0) > maxAssist) {
+                    maxAssist = g.assistStagione || 0;
+                    assistMan = `${g.nome} ${g.cognome}`;
+                }
+            }
+            gameState.capocannoniere = { nome: capo, gol: maxGol };
+            gameState.assistman = { nome: assistMan, assist: maxAssist };
+        }
+
+        // ============================================================
+        // SELEZIONE SQUADRA
+        // ============================================================
+
+        function selezionaSquadra(id) {
+            gameState.squadraSelezionata = id;
+            aggiornaUI();
+            const squadra = getSquadra(id);
+            mostraMessaggio(`✅ Squadra selezionata: ${squadra?.stemma} ${squadra?.nome}`, '#00ff88');
+            // Aggiorna sidebar evidenziando la squadra
+            document.querySelectorAll('.squadra-link').forEach(el => el.classList.remove('attiva'));
+            document.querySelector(`.squadra-link[data-id="${id}"]`)?.classList.add('attiva');
+        }
+
+        // ============================================================
+        // MODALE GIOCATORE
+        // ============================================================
+
+        function apriModal(giocatore) {
+            const modal = document.getElementById('modalGiocatore');
+            const contenuto = document.getElementById('modalContenuto');
+
+            const storicoHtml = giocatore.storico && giocatore.storico.length > 0 ?
+                giocatore.storico.map(s =>
+                    `<div class="storico-item">
+                        <span>${s.anno}</span>
+                        <span>${s.da} → ${s.a}</span>
+                        <span>€${s.costo}M</span>
+                    </div>`
+                ).join('') :
+                '<p style="color:#8892b0;font-size:13px;">Nessun trasferimento precedente</p>';
+
+            contenuto.innerHTML = `
+                <div class="foto-grande">${giocatore.foto || '⚽'}</div>
+                <div class="nome-grande">${giocatore.nome} ${giocatore.cognome}</div>
+                <div class="info-base">
+                    ${giocatore.ruolo} • ${giocatore.posizione || 'CC'} • ${giocatore.eta} anni • ${giocatore.nazionalita || 'Italia'}
+                </div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="label">📊 OVR</div>
+                        <div class="valore" style="color:#ffd700;">${giocatore.ovr}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="label">📏 Altezza</div>
+                        <div class="valore">${giocatore.altezza || 175} cm</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="label">⚖️ Peso</div>
+                        <div class="valore">${giocatore.peso || 75} kg</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="label">👣 Piede</div>
+                        <div class="valore">${giocatore.piede || 'Destro'}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="label">⚽ Gol Stagione</div>
+                        <div class="valore" style="color:#00ff88;">${giocatore.golStagione || 0}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="label">🅰️ Assist Stagione</div>
+                        <div class="valore" style="color:#00d2ff;">${giocatore.assistStagione || 0}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="label">⏱️ Minuti Giocati</div>
+                        <div class="valore">${giocatore.minuti || 0}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="label">📊 Partite</div>
+                        <div class="valore">${Math.floor((giocatore.minuti || 0) / 90)}</div>
+                    </div>
+                </div>
+                <h3 style="color:#00d2ff;font-size:14px;margin-top:10px;">🎯 Attributi</h3>
+                <div class="attributi">
+                    <div class="attributo">
+                        <div class="label">🎯 Tiro</div>
+                        <div class="valore" style="color:#ff6b6b;">${giocatore.tiro || 70}</div>
+                    </div>
+                    <div class="attributo">
+                        <div class="label">🛡️ Difesa</div>
+                        <div class="valore" style="color:#00d2ff;">${giocatore.difesa || 70}</div>
+                    </div>
+                    <div class="attributo">
+                        <div class="label">💨 Velocità</div>
+                        <div class="valore" style="color:#ffd700;">${giocatore.velocita || 70}</div>
+                    </div>
+                    <div class="attributo">
+                        <div class="label">💪 Fisico</div>
+                        <div class="valore" style="color:#00ff88;">${giocatore.fisico || 70}</div>
+                    </div>
+                    <div class="attributo">
+                        <div class="label">🎯 Tecnica</div>
+                        <div class="valore" style="color:#7a2ffc;">${giocatore.tecnica || 70}</div>
+                    </div>
+                    <div class="attributo">
+                        <div class="label">🧠 Intelligenza</div>
+                        <div class="valore" style="color:#fdcb6e;">${giocatore.intelligenza || 70}</div>
+                    </div>
+                </div>
+                <div class="storico">
+                    <h3>📜 Storico Trasferimenti</h3>
+                    ${storicoHtml}
+                </div>
+            `;
+
+            modal.classList.add('aperto');
+        }
+
+        function chiudiModal() {
+            document.getElementById('modalGiocatore').classList.remove('aperto');
+        }
+
+        // Clicca fuori per chiudere
+        document.getElementById('modalGiocatore').addEventListener('click', function(e) {
+            if (e.target === this) chiudiModal();
+        });
+
+        // ============================================================
+        // UI - GERARCHIA
+        // ============================================================
+
+        function buildGerarchia() {
+            const container = document.getElementById('gerarchia');
+            let html = '';
+
+            for (const nazione in CAMPIONATI) {
+                const nazioneData = CAMPIONATI[nazione];
+                html += `
+                    <div class="nazione">
+                        <div class="nazione-titolo" onclick="toggleNazione(this)">
+                            ${nazioneData.stemma} ${nazione}
+                            <span class="freccia">▼</span>
+                        </div>
+                        <div class="nazione-contenuto">
+                `;
+
+                for (const lega in nazioneData.leghe) {
+                    const legaData = nazioneData.leghe[lega];
+                    html += `
+                        <div class="lega">
+                            <div class="lega-titolo" onclick="toggleLega(this)">
+                                ${lega}
+                                <span class="freccia">▶</span>
+                            </div>
+                            <div class="lega-contenuto">
+                    `;
+
+                    for (const squadra of legaData.squadre) {
+                        html += `
+                            <div class="squadra-link" data-id="${squadra.id}" onclick="selezionaSquadra(${squadra.id})">
+                                <span class="stemma">${squadra.stemma}</span>
+                                ${squadra.nome}
+                            </div>
+                        `;
+                    }
+
+                    html += `
+                            </div>
+                        </div>
+                    `;
+                }
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        function toggleNazione(el) {
+            const contenuto = el.nextElementSibling;
+            const freccia = el.querySelector('.freccia');
+            contenuto.classList.toggle('aperto');
+            freccia.classList.toggle('aperto');
+        }
+
+        function toggleLega(el) {
+            const contenuto = el.nextElementSibling;
+            const freccia = el.querySelector('.freccia');
+            contenuto.classList.toggle('aperto');
+            freccia.textContent = contenuto.classList.contains('aperto') ? '▼' : '▶';
+        }
+
+        // ============================================================
+        // UI - AGGIORNAMENTO
+        // ============================================================
+
+        function mostraMessaggio(msg, colore = '#2a3a6e') {
+            const el = document.getElementById('messaggio');
+            el.textContent = msg;
+            el.style.borderLeftColor = colore || '#00d2ff';
+        }
+
+        function aggiornaUI() {
+            const squadra = getSquadra(gameState.squadraSelezionata);
+            const classificaArr = getClassificaArray();
+            const stats = gameState.classifica[gameState.squadraSelezionata];
+            const pos = classificaArr.findIndex(s => s.nome === squadra?.nome) + 1;
+
+            // Dashboard
+            document.getElementById('campionato').textContent = 'Serie A';
+            document.getElementById('posizione').textContent = pos > 0 ? pos + '°' : '-';
+            document.getElementById('golFatti').textContent = stats?.golFatti || 0;
+            document.getElementById('golSubiti').textContent = stats?.golSubiti || 0;
+            document.getElementById('giornata').textContent = `${gameState.giornata} / ${gameState.totaleGiornate}`;
+            document.getElementById('squadraNome').textContent = squadra ? `${squadra.stemma} ${squadra.nome}` : '-';
+
+            // Classifica
+            let html = `<table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Squadra</th>
+                        <th>G</th>
+                        <th>V</th>
+                        <th>N</th>
+                        <th>P</th>
+                        <th>GF</th>
+                        <th>GS</th>
+                        <th>Punti</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+            const miaSquadraNome = squadra?.nome || '';
+            for (let i = 0; i < classificaArr.length; i++) {
+                const s = classificaArr[i];
+                const classe = i === 0 ? 'pos-1' : i === 1 ? 'pos-2' : i === 2 ? 'pos-3' : '';
+                const isMia = s.nome === miaSquadraNome;
+                html += `<tr class="${isMia ? 'mia-squadra' : ''}">
+                    <td class="${classe}">${i + 1}</td>
+                    <td>${isMia ? '👉 ' : ''}${s.nome}</td>
+                    <td>${s.partite}</td>
+                    <td>${s.vittorie}</td>
+                    <td>${s.pareggi}</td>
+                    <td>${s.sconfitte}</td>
+                    <td>${s.golFatti}</td>
+                    <td>${s.golSubiti}</td>
+                    <td><strong>${s.punti}</strong></td>
+                </tr>`;
+            }
+            html += `</tbody></table>
+                <div style="margin-top:15px;padding:10px;background:#1a2a4e;border-radius:10px;">
+                    <strong>⚽ Capocannoniere:</strong> ${gameState.capocannoniere.nome || '-'} (${gameState.capocannoniere.gol || 0} gol) &nbsp;|&nbsp;
+                    <strong>🅰️ Assistman:</strong> ${gameState.assistman.nome || '-'} (${gameState.assistman.assist || 0} assist)
+                </div>`;
+            document.getElementById('classificaTabella').innerHTML = html;
+            document.getElementById('classificaInfo').textContent =
+                `(${classificaArr.length} squadre • Giornata ${gameState.giornata})`;
+
+            // Partite
+            const ultime = gameState.partite.slice(-15).reverse();
+            let partiteHtml = '';
+            if (ultime.length === 0) {
+                partiteHtml = '<p style="color:#8892b0;">Nessuna partita giocata. Simula una giornata!</p>';
+            } else {
+                for (const p of ultime) {
+                    const casa = getSquadra(p.squadra_casa);
+                    const ospite = getSquadra(p.squadra_ospite);
+                    partiteHtml += `<div class="partita">
+                        <span class="squadra">${casa?.stemma || ''} ${casa?.nome || '?'}</span>
+                        <span class="risultato">${p.gol_casa} - ${p.gol_ospite}</span>
+                        <span class="squadra">${ospite?.stemma || ''} ${ospite?.nome || '?'}</span>
+                    </div>`;
+                }
+            }
+            document.getElementById('partiteLista').innerHTML = partiteHtml;
+
+            // Giocatori
+            const giocatori = getGiocatoriSquadra(gameState.squadraSelezionata);
+            let giocatoriHtml = '';
+            if (giocatori.length === 0) {
+                giocatoriHtml = '<p style="color:#8892b0;">Nessun giocatore trovato.</p>';
+            } else {
+                giocatori.sort((a, b) => b.ovr - a.ovr);
+                for (const g of giocatori) {
+                    giocatoriHtml += `
+                        <div class="giocatore-card" onclick='apriModal(${JSON.stringify(g).replace(/'/g, "&apos;")})'>
+                            <div class="foto">${g.foto || '⚽'}</div>
+                            <div class="nome">${g.nome} ${g.cognome}</div>
+                            <div class="ruolo">${g.ruolo} • ${g.eta} anni</div>
+                            <div class="ovr">${g.ovr}</div>
+                            <div class="stats">
+                                <span>⚽ ${g.golStagione || 0}</span>
+                                <span>🅰️ ${g.assistStagione || 0}</span>
+                                <span>⏱️ ${g.minuti || 0}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            document.getElementById('giocatoriLista').innerHTML = giocatoriHtml;
+            document.getElementById('giocatoriInfo').textContent = `(${giocatori.length} giocatori)`;
+        }
+
+        // ============================================================
+        // AVVIO
+        // ============================================================
+
+        initSquadre();
+        buildGerarchia();
+        resetGame();
+
+        // Apri automaticamente la prima nazione e lega
+        setTimeout(() => {
+            const primi = document.querySelectorAll('.nazione-titolo');
+            if (primi.length > 0) {
+                primi[0].click();
+                const primeLeghe = document.querySelectorAll('.lega-titolo');
+                if (primeLeghe.length > 0) {
+                    setTimeout(() => primeLeghe[0].click(), 200);
+                }
+            }
+            // Seleziona automaticamente la prima squadra
+            const primaSquadra = document.querySelector('.squadra-link');
+            if (primaSquadra) {
+                const id = parseInt(primaSquadra.dataset.id);
+                selezionaSquadra(id);
+            }
+        }, 300);
+
+        console.log('⚽ Football Manager 2026 avviato!');
+        console.log(`📊 ${SQUADRE.length} squadre caricate`);
+        console.log(`👥 ${gameState.giocatori.length} giocatori caricati`);
+    </script>
+
+</body>
+</html>
